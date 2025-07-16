@@ -492,7 +492,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                 key={index}
                                 className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
                             >
-                                <div className="relative h-48">
+                                <div className="relative h-64">
                                     <img
                                         src={
                                             (attraction as any).image ||
