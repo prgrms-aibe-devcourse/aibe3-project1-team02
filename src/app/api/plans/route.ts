@@ -2,23 +2,35 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(req: NextRequest) {
-    const data = await req.json()
+    try {
+        const data = await req.json()
 
-    const { error } = await supabaseAdmin.from('plans').insert([data])
+        const { error } = await supabaseAdmin.from('plans').insert([data])
 
-    if (error) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+        if (error) {
+            console.error('Insert Error:', error.message)
+            return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+        }
+
+        return NextResponse.json({ success: true })
+    } catch (err: any) {
+        console.error('POST /api/plans Error:', err.message)
+        return NextResponse.json({ success: false, error: 'Invalid JSON or internal error' }, { status: 500 })
     }
-
-    return NextResponse.json({ success: true })
 }
 
 export async function GET() {
-    const { data, error } = await supabaseAdmin.from('plans').select('*').order('created_at', { ascending: false })
+    try {
+        const { data, error } = await supabaseAdmin.from('plans').select('*').order('created_at', { ascending: false })
 
-    if (error) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+        if (error) {
+            console.error('Fetch Error:', error.message)
+            return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+        }
+
+        return NextResponse.json({ success: true, plans: data })
+    } catch (err: any) {
+        console.error('GET /api/plans Error:', err.message)
+        return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 })
     }
-
-    return NextResponse.json({ success: true, plans: data })
 }
