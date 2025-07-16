@@ -398,6 +398,25 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
           </div>
         )}
 
+        {activeTab === 'attractions' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {destination.highlights.map((hl) => (
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="relative h-48">
+                  <img
+                    src={destination.images[0]}
+                    className="w-full h-full object-cover object-top"
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{hl.title}</h3>
+                  <p className="text-gray-700 leading-relaxed text-lg">{hl.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {activeTab === 'reviews' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
