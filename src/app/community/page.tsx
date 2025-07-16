@@ -13,12 +13,15 @@ interface Review {
     content: string
     author: string
     location: string
-    date: string // 혹은 Date (Supabase에서 string으로 올 수도 있음)
+    date: string
     views: number
     likes: number
     comments: number
     destination_id: number
     user_id: number
+    user: {
+        profile_image: string
+    }
 }
 
 export default function CommunityPage() {
@@ -36,9 +39,13 @@ export default function CommunityPage() {
     ]
 
     const fetchData = async () => {
-        let { data: posts, error } = await supabase.from('review').select('*')
+        let { data: posts, error } = await supabase.from('review').select(`
+          *,
+          user: user (
+            profile_image
+          )
+        `)
         setPosts(posts || [])
-        // setIsLoading(false);
     }
 
     useEffect(() => {
@@ -143,7 +150,7 @@ export default function CommunityPage() {
                             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
                                 <div className="flex items-start gap-4">
                                     <img
-                                        src={post.avatar}
+                                        src={post.user?.profile_image}
                                         alt={post.author}
                                         className="w-12 h-12 rounded-full object-cover object-top"
                                     />
