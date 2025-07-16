@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
     try {
         const data = await req.json()
 
-        const { error } = await supabaseAdmin.from('plans').insert([data])
+        const { error } = await supabaseAdmin.from('travel_plan').insert([data])
 
         if (error) {
             console.error('Insert Error:', error.message)
@@ -21,7 +21,10 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
     try {
-        const { data, error } = await supabaseAdmin.from('plans').select('*').order('created_at', { ascending: false })
+        const { data, error } = await supabaseAdmin
+            .from('travel_plan')
+            .select('*')
+            .order('created_at', { ascending: false })
 
         if (error) {
             console.error('Fetch Error:', error.message)
