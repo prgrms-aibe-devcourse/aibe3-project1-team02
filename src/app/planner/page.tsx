@@ -1,3 +1,5 @@
+// app/planner/page.tsx
+
 'use client'
 import { useState } from 'react'
 import Header from '@/components/Header'
@@ -10,19 +12,23 @@ export default function PlannerPage() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [currentStep, setCurrentStep] = useState(1)
+
     const [planData, setPlanData] = useState<{
         destination: string
         dates: { start: string; end: string }
         travelers: number
         budget: string
         interests: string[]
+        progress: number
     }>({
         destination: '',
         dates: { start: '', end: '' },
         travelers: 1,
         budget: '',
         interests: [],
+        progress: 0,
     })
+
     const steps = [
         { id: 1, title: '여행지 선택', icon: 'ri-map-pin-line' },
         { id: 2, title: '일정 설정', icon: 'ri-calendar-line' },
@@ -73,12 +79,26 @@ export default function PlannerPage() {
         }))
     }
 
+    // nextStep 함수 수정
     const nextStep = () => {
-        if (currentStep < 4) setCurrentStep(currentStep + 1)
+        if (currentStep < 4) {
+            const next = currentStep + 1
+            // 다음 단계가 4단계이면 100%, 아니면 25%씩 증가
+            const newProgress = next === 4 ? 100 : (next - 1) * 25
+            setPlanData((prev) => ({ ...prev, progress: newProgress }))
+            setCurrentStep(next)
+        }
     }
 
+    // prevStep 함수 수정
     const prevStep = () => {
-        if (currentStep > 1) setCurrentStep(currentStep - 1)
+        if (currentStep > 1) {
+            const prev = currentStep - 1
+            // 이전 단계가 4단계일 수 없으므로 항상 25%씩 감소
+            const newProgress = (prev - 1) * 25
+            setPlanData((p) => ({ ...p, progress: newProgress }))
+            setCurrentStep(prev)
+        }
     }
 
     const handleGeneratePlan = async () => {
