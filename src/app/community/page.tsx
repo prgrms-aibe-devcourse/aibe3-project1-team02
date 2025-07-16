@@ -5,24 +5,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
-
-interface Review {
-    id: number
-    type: string
-    title: string
-    content: string
-    author: string
-    location: string
-    date: string
-    views: number
-    likes: number
-    comments: number
-    destination_id: number
-    user_id: number
-    user: {
-        profile_image: string
-    }
-}
+import { Review } from '@/types/community'
 
 export default function CommunityPage() {
     const [activeTab, setActiveTab] = useState('all')
@@ -46,6 +29,12 @@ export default function CommunityPage() {
           )
         `)
         setPosts(posts || [])
+
+        //console.log('Fetched posts:', posts)
+
+        if (error) {
+            console.error('Error fetching posts:', error)
+        }
     }
 
     useEffect(() => {
@@ -175,10 +164,10 @@ export default function CommunityPage() {
 
                                         <p className="text-gray-600 text-sm mb-3 line-clamp-2">{post.content}</p>
 
-                                        {post.image && (
+                                        {post.image_url && (
                                             <div className="mb-4">
                                                 <img
-                                                    src={post.image}
+                                                    src={post.image_url}
                                                     alt="Post image"
                                                     className="w-full max-w-md h-40 object-cover object-top rounded-lg"
                                                 />
