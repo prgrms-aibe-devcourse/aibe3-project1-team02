@@ -46,6 +46,8 @@ export default function MyPlansPage() {
 
     const getStatusText = (status: string) => {
         switch (status) {
+            case 'all':
+                return '전체'
             case 'planning':
                 return '계획 중'
             case 'confirmed':
@@ -57,56 +59,24 @@ export default function MyPlansPage() {
         }
     }
 
+    const getDestinationImage = (destination: string, originalImage: string) => {
+        switch (destination) {
+            case '제주도':
+                return 'https://readdy.ai/api/search-image?query=Beautiful%20Jeju%20Island%20with%20Hallasan%20mountain%20and%20emerald%20sea%2C%20peaceful%20Korean%20island%20landscape%20with%20traditional%20stone%20walls%20and%20natural%20beauty&width=300&height=200&seq=jeju-plan-1&orientation=landscape'
+            case '부산':
+                return 'https://readdy.ai/api/search-image?query=Busan%20coastal%20city%20with%20colorful%20Gamcheon%20village%20and%20beautiful%20beaches%2C%20vibrant%20Korean%20seaside%20destination%20with%20modern%20and%20traditional%20elements&width=300&height=200&seq=busan-plan-2&orientation=landscape'
+            case '도쿄':
+                return 'https://readdy.ai/api/search-image?query=Tokyo%20cityscape%20with%20cherry%20blossoms%20and%20modern%20skyscrapers%2C%20bustling%20Japanese%20metropolitan%20city%20with%20cultural%20landmarks%20and%20vibrant%20street%20life&width=300&height=200&seq=tokyo-plan-3&orientation=landscape'
+            case '파리':
+                return 'https://readdy.ai/api/search-image?query=Paris%20romantic%20cityscape%20with%20Eiffel%20Tower%20and%20Seine%20river%2C%20elegant%20French%20capital%20with%20classic%20architecture%20and%20charming%20atmosphere&width=300&height=200&seq=paris-plan-4&orientation=landscape'
+            default:
+                return originalImage
+        }
+    }
+
     /*
     const mockPlans: TravelPlan[] = [
-        {
-            id: '1',
-            title: '제주도 힐링 여행',
-            destination: '제주도',
-            startDate: '2024-03-15',
-            endDate: '2024-03-18',
-            travelers: 2,
-            status: 'planning',
-            budget: '100만원',
-            image: 'https://readdy.ai/api/search-image?query=Beautiful%20Jeju%20Island%20with%20Hallasan%20mountain%20and%20emerald%20sea%2C%20peaceful%20Korean%20island%20landscape%20with%20traditional%20stone%20walls%20and%20natural%20beauty%2C%20serene%20travel%20destination&width=300&height=200&seq=myplan-jeju-1&orientation=landscape',
-            progress: 65,
-        },
-        {
-            id: '2',
-            title: '부산 맛집 투어',
-            destination: '부산',
-            startDate: '2024-04-01',
-            endDate: '2024-04-03',
-            travelers: 4,
-            status: 'confirmed',
-            budget: '80만원',
-            image: 'https://readdy.ai/api/search-image?query=Busan%20coastal%20city%20with%20colorful%20Gamcheon%20village%20and%20beautiful%20beaches%2C%20vibrant%20Korean%20seaside%20destination%20with%20delicious%20food%20markets%20and%20cultural%20sites&width=300&height=200&seq=myplan-busan-2&orientation=landscape',
-            progress: 100,
-        },
-        {
-            id: '3',
-            title: '서울 문화 탐방',
-            destination: '서울',
-            startDate: '2024-02-10',
-            endDate: '2024-02-12',
-            travelers: 1,
-            status: 'completed',
-            budget: '50만원',
-            image: 'https://readdy.ai/api/search-image?query=Seoul%20traditional%20palaces%20and%20modern%20cityscape%2C%20Korean%20capital%20with%20historic%20Gyeongbokgung%20palace%20and%20vibrant%20cultural%20districts%2C%20beautiful%20travel%20memories&width=300&height=200&seq=myplan-seoul-3&orientation=landscape',
-            progress: 100,
-        },
-        {
-            id: '4',
-            title: '도쿄 벚꽃 여행',
-            destination: '도쿄',
-            startDate: '2024-04-20',
-            endDate: '2024-04-25',
-            travelers: 3,
-            status: 'planning',
-            budget: '200만원',
-            image: 'https://readdy.ai/api/search-image?query=Tokyo%20cherry%20blossoms%20in%20full%20bloom%20with%20traditional%20temples%20and%20modern%20skyscrapers%2C%20beautiful%20Japanese%20spring%20landscape%20with%20pink%20sakura%20flowers%20and%20peaceful%20gardens&width=300&height=200&seq=myplan-tokyo-4&orientation=landscape',
-            progress: 30,
-        },
+        ...
     ]
     */
 
@@ -171,7 +141,7 @@ export default function MyPlansPage() {
                             >
                                 <div className="relative">
                                     <img
-                                        src={plan.image}
+                                        src={getDestinationImage(plan.destination, plan.image)}
                                         alt={plan.title}
                                         className="w-full h-48 object-cover object-top"
                                     />

@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
         travelers: raw.travelers,
         status: 'planning',
         budget: raw.budget,
-        // 하드코딩된 값 대신 클라이언트에서 받은 progress 값으로 변경
         progress: raw.progress,
         image:
             raw.image ??
@@ -32,7 +31,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true })
 }
 
-// ... (GET 함수는 그대로 유지) ...
 export async function GET() {
     try {
         const { data, error } = await supabaseAdmin

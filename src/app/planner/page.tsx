@@ -90,11 +90,9 @@ export default function PlannerPage() {
         }
     }
 
-    // prevStep 함수 수정
     const prevStep = () => {
         if (currentStep > 1) {
             const prev = currentStep - 1
-            // 이전 단계가 4단계일 수 없으므로 항상 25%씩 감소
             const newProgress = (prev - 1) * 25
             setPlanData((p) => ({ ...p, progress: newProgress }))
             setCurrentStep(prev)
