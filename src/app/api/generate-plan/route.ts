@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 - 예산: ${budget}
 - 관심사: ${interests.join(', ')}
 
-JSON 형식으로 아래 예시처럼 반환하세요:
+JSON 형식으로 아래 예시처럼 반환하세요 (코드 블록 없이 JSON만 반환하세요):
 
 [
   {
@@ -28,8 +28,7 @@ JSON 형식으로 아래 예시처럼 반환하세요:
     "morning": "호텔 체크인 및 주변 산책",
     "afternoon": "루브르 박물관 관람",
     "evening": "세느강 유람선 디너"
-  },
-  ...
+  }
 ]
 `
 
@@ -40,7 +39,12 @@ JSON 형식으로 아래 예시처럼 반환하세요:
             temperature: 0.7,
         })
 
-        const content = response.choices[0].message.content || '[]'
+        let content = response.choices[0].message.content || '[]'
+
+        if (content.includes('```')) {
+            content = content.replace(/```json|```/g, '').trim()
+        }
+
         const plan = JSON.parse(content)
 
         return NextResponse.json({ success: true, plan })
