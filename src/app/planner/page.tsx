@@ -365,6 +365,11 @@ export default function PlannerPage() {
                                             </div>
                                         ))}
                                     </div>
+                                    <div className="text-center mt-8">
+                                        <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">
+                                            여행 계획 저장하기
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
