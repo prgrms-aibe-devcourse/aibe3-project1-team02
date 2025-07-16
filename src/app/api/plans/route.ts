@@ -43,7 +43,6 @@ export async function GET() {
             return NextResponse.json({ success: false, error: error.message }, { status: 500 })
         }
 
-        // snake_case → camelCase 변환
         const plans = data.map((plan) => ({
             id: plan.id,
             title: plan.title,

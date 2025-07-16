@@ -2,8 +2,10 @@
 import { useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { useRouter } from 'next/navigation'
 
 export default function PlannerPage() {
+    const router = useRouter()
     const [generatedPlan, setGeneratedPlan] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -115,6 +117,7 @@ export default function PlannerPage() {
             const result = await res.json()
             if (result.success) {
                 alert('여행 계획이 저장되었습니다!')
+                router.push('/my-plans')
             } else {
                 alert(`저장 실패: ${result.error}`)
             }
