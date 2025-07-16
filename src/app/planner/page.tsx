@@ -1,28 +1,26 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export default function PlannerPage() {
+    const [generatedPlan, setGeneratedPlan] = useState<any[]>([])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
     const [currentStep, setCurrentStep] = useState(1)
-    const [planData, setPlanData] = useState({
+    const [planData, setPlanData] = useState<{
+        destination: string
+        dates: { start: string; end: string }
+        travelers: number
+        budget: string
+        interests: string[]
+    }>({
         destination: '',
         dates: { start: '', end: '' },
         travelers: 1,
         budget: '',
-        interests: [] as string[],
+        interests: [],
     })
-
-    const searchParams = useSearchParams()
-    const selected = searchParams.get('selected')
-
-    useEffect(() => {
-        if (selected && !planData.destination) {
-            setPlanData((prev) => ({ ...prev, destination: selected }))
-        }
-    }, [selected, planData.destination])
-
     const steps = [
         { id: 1, title: '여행지 선택', icon: 'ri-map-pin-line' },
         { id: 2, title: '일정 설정', icon: 'ri-calendar-line' },
@@ -79,6 +77,31 @@ export default function PlannerPage() {
 
     const prevStep = () => {
         if (currentStep > 1) setCurrentStep(currentStep - 1)
+    }
+
+    const handleGeneratePlan = async () => {
+        setLoading(true)
+        setError('')
+        setGeneratedPlan([])
+
+        try {
+            const res = await fetch('/api/generate-plan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(planData),
+            })
+
+            const data = await res.json()
+            if (!data.success) {
+                throw new Error(data.error || '일정 생성 실패')
+            }
+
+            setGeneratedPlan(data.plan)
+        } catch (err: any) {
+            setError(err.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -277,64 +300,80 @@ export default function PlannerPage() {
                     )}
 
                     {/* Step 4: Complete */}
+                    {/* Step 4 */}
                     {currentStep === 4 && (
                         <div className="text-center">
-                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <div className="w-10 h-10 flex items-center justify-center">
-                                    <i className="ri-check-line text-green-600 text-3xl"></i>
-                                </div>
+                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i className="ri-check-line text-green-600 text-3xl" />
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-4">여행 계획이 완성되었습니다!</h2>
-                            <p className="text-gray-600 mb-8">
-                                AI가 맞춤형 일정을 생성하고 있습니다. 잠시만 기다려주세요.
-                            </p>
+                            <h2 className="text-2xl font-bold mb-4">여행 계획이 완성되었습니다!</h2>
 
-                            <div className="bg-gray-50 rounded-xl p-6 mb-8 text-left">
-                                <h3 className="font-semibold mb-4">계획 요약</h3>
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">여행지:</span>
-                                        <span>{planData.destination}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">일정:</span>
-                                        <span>
-                                            {planData.dates.start} ~ {planData.dates.end}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">인원:</span>
-                                        <span>{planData.travelers}명</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">예산:</span>
-                                        <span>
-                                            {planData.budget === 'low'
-                                                ? '50만원 이하'
-                                                : planData.budget === 'medium'
-                                                ? '50-100만원'
-                                                : planData.budget === 'high'
-                                                ? '100-200만원'
-                                                : '200만원 이상'}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">관심사:</span>
-                                        <span>
+                            <button
+                                onClick={handleGeneratePlan}
+                                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition mb-6"
+                            >
+                                맞춤 일정 확인하기
+                            </button>
+
+                            {loading && <p className="text-blue-500">AI가 일정을 생성 중입니다...</p>}
+                            {error && <p className="text-red-500 mt-2">{error}</p>}
+
+                            {!loading && generatedPlan.length > 0 && (
+                                <div className="text-left mt-10">
+                                    <div className="bg-gray-50 p-6 rounded-lg border mb-6">
+                                        <h3 className="text-lg font-semibold mb-4">📋 여행 계획 요약</h3>
+                                        <p>🗺 여행지: {planData.destination}</p>
+                                        <p>
+                                            📆 일정: {planData.dates.start} ~ {planData.dates.end}
+                                        </p>
+                                        <p>👥 인원: {planData.travelers}명</p>
+                                        <p>
+                                            💰 예산:{' '}
+                                            {
+                                                {
+                                                    low: '50만원 이하',
+                                                    medium: '50-100만원',
+                                                    high: '100-200만원',
+                                                    luxury: '200만원 이상',
+                                                }[planData.budget]
+                                            }
+                                        </p>
+                                        <p>
+                                            🎯 관심사:{' '}
                                             {planData.interests
                                                 .map((id) => interests.find((i) => i.id === id)?.name)
                                                 .join(', ')}
-                                        </span>
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <h3 className="text-lg font-semibold mb-2">🗓 맞춤 일정</h3>
+                                        {generatedPlan.map((day, idx) => (
+                                            <div key={idx} className="p-4 bg-white border rounded-lg shadow">
+                                                <h4 className="text-blue-600 font-semibold mb-2">{day.date}</h4>
+                                                <ul className="text-sm">
+                                                    <li>
+                                                        <strong>오전:</strong> {day.morning}
+                                                    </li>
+                                                    <li>
+                                                        <strong>오후:</strong> {day.afternoon}
+                                                    </li>
+                                                    <li>
+                                                        <strong>저녁:</strong> {day.evening}
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="text-center mt-8">
+                                        <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">
+                                            여행 계획 저장하기
+                                        </button>
                                     </div>
                                 </div>
-                            </div>
-
-                            <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium">
-                                맞춤 일정 확인하기
-                            </button>
+                            )}
                         </div>
                     )}
-
                     {/* Navigation Buttons */}
                     <div className="flex justify-between mt-8">
                         <button

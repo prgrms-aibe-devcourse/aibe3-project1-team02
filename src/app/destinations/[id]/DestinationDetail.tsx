@@ -73,10 +73,26 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                 'https://readdy.ai/api/search-image?query=Jagalchi%20Fish%20Market%20in%20Busan%20with%20fresh%20seafood%2C%20traditional%20Korean%20market%20atmosphere%2C%20bustling%20vendors%20and%20colorful%20marine%20products&width=800&height=500&seq=busan-detail-3&orientation=landscape',
             ],
             highlights: [
-                { title: '해운대 해수욕장', description: '한국 최고의 해변 리조트' },
-                { title: '감천문화마을', description: '알록달록한 산복도로 마을' },
-                { title: '자갈치시장', description: '신선한 해산물의 천국' },
-                { title: '광안대교', description: '부산의 상징적인 야경 명소' },
+                {
+                    title: '해운대 해수욕장',
+                    description: '한국 최고의 해변 리조트',
+                    image: 'https://www.visitbusan.net/uploadImgs/files/cntnts/20191229153531987_oen',
+                },
+                {
+                    title: '김천문화마을',
+                    description: '알록달록한 산복도로 마을',
+                    image: 'https://www.saha.go.kr/tour/images/sub/img_01_01_01.jpg',
+                },
+                {
+                    title: '자갈치시장',
+                    description: '신선한 해산물의 천국',
+                    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jagalchi_Market_20200523_019.jpg/1200px-Jagalchi_Market_20200523_019.jpg',
+                },
+                {
+                    title: '광안대교',
+                    description: '부산의 상징적인 야경 명소',
+                    image: 'https://tourimage.interpark.com//Spot/208/17475/201204/6347034434029230232.jpg',
+                },
             ],
             bestTime: '4월-6월, 9월-11월',
             duration: '1박 2일 ~ 3박 4일',
@@ -99,10 +115,26 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                 'https://readdy.ai/api/search-image?query=Traditional%20Senso-ji%20temple%20in%20Asakusa%20Tokyo%20with%20cherry%20blossoms%2C%20red%20pagoda%2C%20and%20traditional%20Japanese%20architecture%20in%20peaceful%20garden%20setting&width=800&height=500&seq=tokyo-detail-3&orientation=landscape',
             ],
             highlights: [
-                { title: '센소지 절', description: '도쿄 최고의 전통 사찰' },
-                { title: '시부야 교차로', description: '세계에서 가장 바쁜 교차로' },
-                { title: '도쿄 스카이트리', description: '도쿄의 랜드마크 전망대' },
-                { title: '츠키지 시장', description: '신선한 참치와 스시의 본고장' },
+                {
+                    title: '센소지 절',
+                    description: '도쿄 최고의 전통 사찰',
+                    image: 'https://article.bespes-jt.com/hs-fs/hubfs/%E5%90%8D%E7%A7%B0%E6%9C%AA%E8%A8%AD%E5%AE%9A%E3%81%AE%E3%83%86%3F%E3%82%B5%3F%E3%82%A4%E3%83%B3%20(7)-2.png?width=864&height=486&name=%E5%90%8D%E7%A7%B0%E6%9C%AA%E8%A8%AD%E5%AE%9A%E3%81%AE%E3%83%86%3F%E3%82%B5%3F%E3%82%A4%E3%83%B3%20(7)-2.png',
+                },
+                {
+                    title: '시부야 교차로',
+                    description: '세계에서 가장  바쁜 교차로',
+                    image: 'https://resources.matcha-jp.com/resize/720x2000/2023/06/12-139337.webp',
+                },
+                {
+                    title: '도쿄 스카이트리',
+                    description: '도쿄의 랜드마크 전망대',
+                    image: 'https://s3-ap-northeast-1.amazonaws.com/thegate/2020/12/02/19/54/49/Tokyo%20skytree.jpg',
+                },
+                {
+                    title: '츠키지 시장',
+                    description: '신선한 참치와 스시의 본고장',
+                    image: 'https://img.activityjapan.com/wi/tsukiji-route_thumb.jpg',
+                },
             ],
             bestTime: '3월-5월, 9월-11월',
             duration: '3박 4일 ~ 7박 8일',
