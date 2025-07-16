@@ -3,6 +3,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 interface DestinationDetailProps {
     destinationId: string
@@ -168,6 +170,10 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         },
     ]
 
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const selected = searchParams.get('selected')
+
     return (
         <div className="min-h-screen bg-white">
             <Header />
@@ -284,7 +290,10 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                         <dd className="text-gray-900">{destination.climate}</dd>
                                     </div>
                                 </div>
-                                <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium mt-6">
+                                <button
+                                    className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium mt-6"
+                                    onClick={() => router.push(`/planner?selected=${destination.name}`)}
+                                >
                                     여행 계획 세우기
                                 </button>
                             </div>
