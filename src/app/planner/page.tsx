@@ -104,6 +104,26 @@ export default function PlannerPage() {
         }
     }
 
+    const handleSavePlan = async () => {
+        try {
+            const res = await fetch('/api/plans', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(planData),
+            })
+
+            const result = await res.json()
+            if (result.success) {
+                alert('여행 계획이 저장되었습니다!')
+            } else {
+                alert(`저장 실패: ${result.error}`)
+            }
+        } catch (err) {
+            alert('저장 중 오류가 발생했습니다.')
+            console.error('Plan Save Error:', err)
+        }
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />
@@ -366,7 +386,10 @@ export default function PlannerPage() {
                                         ))}
                                     </div>
                                     <div className="text-center mt-8">
-                                        <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">
+                                        <button
+                                            onClick={handleSavePlan}
+                                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition"
+                                        >
                                             여행 계획 저장하기
                                         </button>
                                     </div>
