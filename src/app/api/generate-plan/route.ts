@@ -35,7 +35,7 @@ JSON 형식으로 아래 예시처럼 반환하세요:
 
     try {
         const response = await openai.chat.completions.create({
-            model: 'gpt-4',
+            model: 'gpt-4o',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.7,
         })
