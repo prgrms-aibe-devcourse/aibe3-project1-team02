@@ -8,14 +8,19 @@ export default function PlannerPage() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [currentStep, setCurrentStep] = useState(1)
-    const [planData, setPlanData] = useState({
+    const [planData, setPlanData] = useState<{
+        destination: string
+        dates: { start: string; end: string }
+        travelers: number
+        budget: string
+        interests: string[]
+    }>({
         destination: '',
         dates: { start: '', end: '' },
         travelers: 1,
         budget: '',
         interests: [],
     })
-
     const steps = [
         { id: 1, title: '여행지 선택', icon: 'ri-map-pin-line' },
         { id: 2, title: '일정 설정', icon: 'ri-calendar-line' },
