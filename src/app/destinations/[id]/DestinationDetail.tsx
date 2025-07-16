@@ -88,6 +88,81 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
       duration: '3박 4일 ~ 7박 8일',
       transportation: '항공편 (인천 → 나리타/하네다)',
       climate: '온대 습윤 기후, 사계절 뚜렷'
+    },
+    '4': {
+      name: '파리',
+      country: '프랑스',
+      category: 'europe',
+      rating: 4.9,
+      reviews: 3542,
+      price: '380,000원부터',
+      tags: ['로맨틱', '예술', '역사'],
+      description: '프랑스의 수도 파리는 예술과 낭만이 가득한 도시로, 에펠탑, 루브르 박물관, 몽마르트 언덕 등에서 풍부한 역사와 문화를 즐길 수 있습니다.',
+      images: [
+        'https://readdy.ai/api/search-image?query=Paris%20cityscape%20with%20Eiffel%20Tower%2C%20Seine%20river%2C%20classic%20Haussmanian%20architecture%2C%20and%20charming%20cobblestone%20streets%2C%20romantic%20European%20atmosphere%20with%20warm%20golden%20lighting&width=400&height=300&seq=paris-dest-4&orientation=landscape',
+        'https://readdy.ai/api/search-image?query=Shibuya%20crossing%20in%20Tokyo%20with%20neon%20lights%2C%20busy%20pedestrians%2C%20and%20modern%20architecture%2C%20iconic%20Japanese%20urban%20scene%20with%20vibrant%20city%20energy&width=800&height=500&seq=tokyo-detail-2&orientation=landscape',
+        'https://readdy.ai/api/search-image?query=Traditional%20Senso-ji%20temple%20in%20Asakusa%20Tokyo%20with%20cherry%20blossoms%2C%20red%20pagoda%2C%20and%20traditional%20Japanese%20architecture%20in%20peaceful%20garden%20setting&width=800&height=500&seq=tokyo-detail-3&orientation=landscape'
+      ],
+      highlights: [
+        { title: '에펠탑 ', description: '파리의 상징이자 가장 유명한 랜드마크' },
+        { title: '루브르 박물관', description: '모나리자, 밀로의 비너스 등 수많은 명작 전시' },
+        { title: '노트르담 대성당', description: '고딕 건축의 걸작' },
+        { title: '몽마르트 언덕 & 사크레쾨르 대성당', description: '예술가의 거리, 파리의 감성이 살아있는 동네' }
+      ],
+      bestTime: '3월-5월, 9월-11월',
+      duration: '3박 4일 ~ 7박 8일',
+      transportation: '항공편 (인천 → 파리)',
+      climate: '서안 해양성 기후, 사계절이 뚜렷하며 온화하고 습함'
+    },
+    '5': {
+      name: '뉴욕',
+      country: '미국',
+      category: 'america',
+      rating: 4.9,
+      reviews: 3542,
+      price: '380,000원부터',
+      tags: ['도시', '쇼핑', '엔터테인먼트'],
+      description: '미국의 최대 도시 뉴욕은 세계 문화, 경제, 예술의 중심지로, 다채로운 매력과 에너지가 넘치는 글로벌 도시입니다.',
+      images: [
+        'https://readdy.ai/api/search-image?query=Tokyo%20cityscape%20with%20cherry%20blossoms%2C%20traditional%20temples%2C%20modern%20skyscrapers%2C%20and%20bustling%20streets%2C%20vibrant%20Japanese%20metropolitan%20atmosphere%20with%20cultural%20blend&width=800&height=500&seq=tokyo-detail-1&orientation=landscape',
+        'https://readdy.ai/api/search-image?query=Shibuya%20crossing%20in%20Tokyo%20with%20neon%20lights%2C%20busy%20pedestrians%2C%20and%20modern%20architecture%2C%20iconic%20Japanese%20urban%20scene%20with%20vibrant%20city%20energy&width=800&height=500&seq=tokyo-detail-2&orientation=landscape',
+        'https://readdy.ai/api/search-image?query=Traditional%20Senso-ji%20temple%20in%20Asakusa%20Tokyo%20with%20cherry%20blossoms%2C%20red%20pagoda%2C%20and%20traditional%20Japanese%20architecture%20in%20peaceful%20garden%20setting&width=800&height=500&seq=tokyo-detail-3&orientation=landscape'
+      ],
+      highlights: [
+        { title: '자유의 여신상', description: '뉴욕의 상징으로, 자유와 희망을 표현하는 대형 동상' },
+        { title: '센트럴 파크', description: '맨해튼 중심에 위치한 거대한 공원으로 산책과 여유를 즐기기 좋은 공간' },
+        { title: '타임스퀘어', description: '화려한 전광판과 수많은 인파가 모이는 뉴욕의 대표적인 번화가' },
+        { title: '메트로폴리탄 미술관장', description: '다양한 시대와 문화를 아우르는 작품들이 전시된 세계적인 미술관' }
+      ],
+      bestTime: '3월-5월, 9월-11월',
+      duration: '3박 4일 ~ 7박 8일',
+      transportation: '항공편 (인천 → 뉴욕)',
+      climate: '온대 습윤 기후, 사계절이 뚜렷하며 여름은 덥고 습하며, 겨울은 춥고 눈이 자주 내림'
+    },
+    '6': {
+      name: '시드니',
+      country: '오스트레일리아',
+      category: 'oceania',
+      rating: 4.9,
+      reviews: 3542,
+      price: '380,000원부터',
+      tags: ['자연', '도시', '해변'],
+      description: '호주의 대표 도시 시드니는 아름다운 해변과 현대적인 건축, 자연이 어우러진 활기찬 항구 도시입니다.',
+      images: [
+        'https://readdy.ai/api/search-image?query=Tokyo%20cityscape%20with%20cherry%20blossoms%2C%20traditional%20temples%2C%20modern%20skyscrapers%2C%20and%20bustling%20streets%2C%20vibrant%20Japanese%20metropolitan%20atmosphere%20with%20cultural%20blend&width=800&height=500&seq=tokyo-detail-1&orientation=landscape',
+        'https://readdy.ai/api/search-image?query=Shibuya%20crossing%20in%20Tokyo%20with%20neon%20lights%2C%20busy%20pedestrians%2C%20and%20modern%20architecture%2C%20iconic%20Japanese%20urban%20scene%20with%20vibrant%20city%20energy&width=800&height=500&seq=tokyo-detail-2&orientation=landscape',
+        'https://readdy.ai/api/search-image?query=Traditional%20Senso-ji%20temple%20in%20Asakusa%20Tokyo%20with%20cherry%20blossoms%2C%20red%20pagoda%2C%20and%20traditional%20Japanese%20architecture%20in%20peaceful%20garden%20setting&width=800&height=500&seq=tokyo-detail-3&orientation=landscape'
+      ],
+      highlights: [
+        { title: '오페라 하우스', description: '독특한 조개껍질 모양의 외관으로 유명한 시드니의 대표 건축물' },
+        { title: '하버 브리지', description: '시드니 항구를 가로지르는 대형 철교로, 도보나 클라이밍으로 전망을 감상하기 좋은 명소' },
+        { title: '본다이 비치', description: '서핑과 해변 문화를 즐길 수 있는 시드니의 인기 해변' },
+        { title: '블루마운틴', description: '유칼립투스 숲과 절벽 풍경이 인상적인 자연 관광지' }
+      ],
+      bestTime: '3월-5월, 9월-11월',
+      duration: '3박 4일 ~ 7박 8일',
+      transportation: '항공편 (인천 → 시드니)',
+      climate: '온대 해양성 기후, 사계절이 있지만 여름은 덥고 겨울은 온화하며 연중 일조량이 풍부함'
     }
   };
 
