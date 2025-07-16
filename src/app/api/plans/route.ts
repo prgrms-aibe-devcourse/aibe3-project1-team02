@@ -13,8 +13,6 @@ export async function POST(req: NextRequest) {
         status: 'planning',
         budget: raw.budget,
         progress: 30,
-        user_id: raw.userId ?? null,
-        destination_id: raw.destinationId ?? null,
         image:
             raw.image ??
             `https://readdy.ai/api/search-image?query=${encodeURIComponent(
