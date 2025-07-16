@@ -206,6 +206,9 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
     const searchParams = useSearchParams()
     const selected = searchParams.get('selected')
 
+    const [helpfulCounts, setHelpfulCounts] = useState<{ [id: number]: number }>({})
+    const [helpfulClicked, setHelpfulClicked] = useState<{ [id: number]: boolean }>({})
+
     return (
         <div className="min-h-screen bg-white">
             <Header />
@@ -395,62 +398,90 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-2xl font-bold text-gray-900">여행 후기</h2>
-                            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap">
+                            <button
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap"
+                                onClick={() => router.push('/community')}
+                            >
                                 후기 작성
                             </button>
                         </div>
 
-                        {reviews.map((review) => (
-                            <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-6">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="font-medium text-gray-900">{review.author}</span>
-                                            <div className="flex items-center gap-1">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <div key={i} className="w-4 h-4 flex items-center justify-center">
-                                                        <i
-                                                            className={`ri-star-fill text-sm ${
-                                                                i < review.rating ? 'text-yellow-400' : 'text-gray-300'
-                                                            }`}
-                                                        ></i>
-                                                    </div>
-                                                ))}
+                        {reviews.map((review) => {
+                            const helpful = helpfulCounts[review.id] ?? review.helpful
+                            const clicked = helpfulClicked[review.id] ?? false
+                            return (
+                                <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-6">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="font-medium text-gray-900">{review.author}</span>
+                                                <div className="flex items-center gap-1">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <div
+                                                            key={i}
+                                                            className="w-4 h-4 flex items-center justify-center"
+                                                        >
+                                                            <i
+                                                                className={`ri-star-fill text-sm ${
+                                                                    i < review.rating
+                                                                        ? 'text-yellow-400'
+                                                                        : 'text-gray-300'
+                                                                }`}
+                                                            ></i>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
+                                            <p className="text-sm text-gray-500">{review.date}</p>
                                         </div>
-                                        <p className="text-sm text-gray-500">{review.date}</p>
+                                    </div>
+                                    <h3 className="font-semibold text-gray-900 mb-2">{review.title}</h3>
+                                    <p className="text-gray-700 mb-4">{review.content}</p>
+                                    {review.images.length > 0 && (
+                                        <div className="flex gap-2 mb-4">
+                                            {review.images.map((image, index) => (
+                                                <img
+                                                    key={index}
+                                                    src={image}
+                                                    alt="Review"
+                                                    className="w-20 h-20 object-cover object-top rounded-lg"
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                                        <button
+                                            className={`flex items-center gap-1 cursor-pointer ${
+                                                clicked ? 'text-blue-600 font-bold' : 'hover:text-blue-600'
+                                            }`}
+                                            onClick={() => {
+                                                setHelpfulCounts((prev) => ({
+                                                    ...prev,
+                                                    [review.id]: clicked
+                                                        ? (prev[review.id] ?? review.helpful) - 1
+                                                        : (prev[review.id] ?? review.helpful) + 1,
+                                                }))
+                                                setHelpfulClicked((prev) => ({
+                                                    ...prev,
+                                                    [review.id]: !clicked,
+                                                }))
+                                            }}
+                                        >
+                                            <div className="w-4 h-4 flex items-center justify-center">
+                                                <i className="ri-thumb-up-line text-xs"></i>
+                                            </div>
+                                            도움됨 {helpful}
+                                        </button>
+                                        <button className="flex items-center gap-1 hover:text-blue-600 cursor-pointer">
+                                            <div className="w-4 h-4 flex items-center justify-center">
+                                                <i className="ri-chat-3-line text-xs"></i>
+                                            </div>
+                                            댓글
+                                        </button>
                                     </div>
                                 </div>
-                                <h3 className="font-semibold text-gray-900 mb-2">{review.title}</h3>
-                                <p className="text-gray-700 mb-4">{review.content}</p>
-                                {review.images.length > 0 && (
-                                    <div className="flex gap-2 mb-4">
-                                        {review.images.map((image, index) => (
-                                            <img
-                                                key={index}
-                                                src={image}
-                                                alt="Review"
-                                                className="w-20 h-20 object-cover object-top rounded-lg"
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                                <div className="flex items-center gap-4 text-sm text-gray-500">
-                                    <button className="flex items-center gap-1 hover:text-blue-600 cursor-pointer">
-                                        <div className="w-4 h-4 flex items-center justify-center">
-                                            <i className="ri-thumb-up-line text-xs"></i>
-                                        </div>
-                                        도움됨 {review.helpful}
-                                    </button>
-                                    <button className="flex items-center gap-1 hover:text-blue-600 cursor-pointer">
-                                        <div className="w-4 h-4 flex items-center justify-center">
-                                            <i className="ri-chat-3-line text-xs"></i>
-                                        </div>
-                                        댓글
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 )}
 
