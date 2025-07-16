@@ -1,13 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { supabase } from '@/lib/supabase'
+
+interface Review {
+    id: number
+    type: string
+    title: string
+    content: string
+    author: string
+    location: string
+    date: string // 혹은 Date (Supabase에서 string으로 올 수도 있음)
+    views: number
+    likes: number
+    comments: number
+    destination_id: number
+    user_id: number
+}
 
 export default function CommunityPage() {
     const [activeTab, setActiveTab] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
+
+    const [posts, setPosts] = useState<Review[]>([])
 
     const tabs = [
         { id: 'all', name: '전체', icon: 'ri-global-line' },
@@ -17,92 +35,15 @@ export default function CommunityPage() {
         { id: 'companion', name: '동행구인', icon: 'ri-group-line' },
     ]
 
-    const posts = [
-        {
-            id: 1,
-            type: 'review',
-            title: '제주도 3박 4일 완벽 가이드 (사진 많음)',
-            content:
-                '제주도 여행 다녀왔는데 정말 좋았어요! 특히 성산일출봉에서 본 일출이 정말 감동적이었습니다. 렌터카 빌려서 돌아다니니까 자유롭게 구경할 수 있어서 좋았고...',
-            author: '여행러버',
-            avatar: 'https://readdy.ai/api/search-image?query=Friendly%20Korean%20traveler%20profile%20photo%2C%20young%20person%20with%20warm%20smile%2C%20casual%20travel%20outfit%2C%20bright%20and%20positive%20atmosphere&width=50&height=50&seq=avatar-1&orientation=squarish',
-            location: '제주도',
-            date: '2024-01-15',
-            views: 1247,
-            likes: 89,
-            comments: 23,
-            tags: ['제주도', '후기', '렌터카'],
-            image: 'https://readdy.ai/api/search-image?query=Beautiful%20Jeju%20Island%20Seongsan%20Ilchulbong%20sunrise%20with%20orange%20sky%2C%20peaceful%20ocean%20view%2C%20iconic%20volcanic%20crater%20formation%20with%20dramatic%20morning%20light&width=300&height=200&seq=jeju-review-1&orientation=landscape',
-        },
-        {
-            id: 2,
-            type: 'question',
-            title: '일본 여행 JR패스 꼭 사야하나요?',
-            content:
-                '도쿄-오사카-교토 일정으로 7일 여행 계획 중인데, JR패스를 살지 말지 고민이에요. 경험 있으신 분들 조언 부탁드려요!',
-            author: '초보여행자',
-            avatar: 'https://readdy.ai/api/search-image?query=Curious%20young%20Korean%20person%20asking%20questions%2C%20friendly%20and%20approachable%20appearance%2C%20casual%20style%20with%20questioning%20expression&width=50&height=50&seq=avatar-2&orientation=squarish',
-            location: '일본',
-            date: '2024-01-14',
-            views: 892,
-            likes: 34,
-            comments: 45,
-            tags: ['일본', '교통', 'JR패스'],
-        },
-        {
-            id: 3,
-            type: 'tip',
-            title: '유럽 배낭여행 짐 싸는 꿀팁 10가지',
-            content:
-                '유럽 한 달 배낭여행을 다녀온 경험을 바탕으로 짐 싸는 노하우를 공유합니다. 무게를 줄이면서도 필요한 건 다 챙기는 방법!',
-            author: '배낭여행고수',
-            avatar: 'https://readdy.ai/api/search-image?query=Experienced%20backpacker%20with%20travel%20gear%2C%20confident%20and%20knowledgeable%20appearance%2C%20outdoor%20adventure%20style%20clothing&width=50&height=50&seq=avatar-3&orientation=squarish',
-            location: '유럽',
-            date: '2024-01-13',
-            views: 2156,
-            likes: 156,
-            comments: 67,
-            tags: ['유럽', '배낭여행', '패킹팁'],
-            image: 'https://readdy.ai/api/search-image?query=Well%20organized%20travel%20backpack%20with%20essential%20items%2C%20minimalist%20packing%20setup%2C%20travel%20accessories%20neatly%20arranged%20on%20clean%20background&width=300&height=200&seq=packing-tip-1&orientation=landscape',
-        },
-        {
-            id: 4,
-            type: 'companion',
-            title: '2월 동남아 여행 같이 하실 분!',
-            content:
-                '2월 중순 태국-베트남 2주 여행 계획 중입니다. 20대 후반 여성이고, 같이 여행하실 분 찾아요. 자유여행 경험 많으시면 더 좋겠어요!',
-            author: '아시아여행매니아',
-            avatar: 'https://readdy.ai/api/search-image?query=Friendly%20young%20Korean%20woman%20traveler%2C%20warm%20smile%2C%20casual%20travel%20outfit%2C%20approachable%20and%20sociable%20personality&width=50&height=50&seq=avatar-4&orientation=squarish',
-            location: '동남아',
-            date: '2024-01-12',
-            views: 634,
-            likes: 28,
-            comments: 18,
-            tags: ['동남아', '동행구인', '자유여행'],
-        },
-        {
-            id: 5,
-            type: 'review',
-            title: '부산 2박 3일 맛집 투어 후기 (찐맛집만)',
-            content:
-                '부산 토박이 친구 추천으로 진짜 맛집들만 골라서 다녀왔어요. 관광지 맛집 말고 현지인들이 진짜 가는 곳들! 사진과 함께 리뷰 남겨요.',
-            author: '맛집헌터',
-            avatar: 'https://readdy.ai/api/search-image?query=Food%20enthusiast%20with%20happy%20expression%2C%20holding%20chopsticks%20or%20food%2C%20warm%20and%20cheerful%20personality%2C%20casual%20dining%20atmosphere&width=50&height=50&seq=avatar-5&orientation=squarish',
-            location: '부산',
-            date: '2024-01-11',
-            views: 1834,
-            likes: 127,
-            comments: 56,
-            tags: ['부산', '맛집', '현지맛집'],
-            image: 'https://readdy.ai/api/search-image?query=Delicious%20Korean%20seafood%20dishes%20in%20Busan%2C%20fresh%20sashimi%20and%20grilled%20fish%2C%20authentic%20local%20restaurant%20atmosphere%20with%20traditional%20Korean%20dining%20setup&width=300&height=200&seq=busan-food-1&orientation=landscape',
-        },
-    ]
-
     const fetchData = async () => {
         let { data: posts, error } = await supabase.from('review').select('*')
-        // setPosts(posts ?? []);
+        setPosts(posts || [])
         // setIsLoading(false);
     }
+
+    useEffect(() => {
+        fetchData()
+    }, [])
 
     const filteredPosts = posts.filter((post) => {
         const matchesTab = activeTab === 'all' || post.type === activeTab
@@ -237,7 +178,7 @@ export default function CommunityPage() {
                                             </div>
                                         )}
 
-                                        <div className="flex flex-wrap gap-2 mb-4">
+                                        {/* <div className="flex flex-wrap gap-2 mb-4">
                                             {post.tags.map((tag, index) => (
                                                 <span
                                                     key={index}
@@ -246,7 +187,7 @@ export default function CommunityPage() {
                                                     #{tag}
                                                 </span>
                                             ))}
-                                        </div>
+                                        </div> */}
 
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-1 text-sm text-gray-500">
