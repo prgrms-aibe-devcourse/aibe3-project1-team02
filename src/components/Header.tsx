@@ -1,10 +1,11 @@
 'use client'
 
 import { supabase } from '@/lib/supabase'
-import { User } from '@supabase/supabase-js'
+import { SupabaseClient, User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -15,19 +16,29 @@ export default function Header() {
         const getUser = async () => {
             const {
                 data: { user },
-            } = await supabase.auth.getUser()
+            } = await supabaseBrowser.auth.getUser()
+            console.log('Current user on mount:', user)
             setUser(user)
         }
 
         getUser()
+
+        const { data: listener } = supabaseBrowser.auth.onAuthStateChange((_event, session) => {
+            console.log('Auth event:', _event, session)
+            setUser(session?.user ?? null)
+        })
+
+        return () => {
+            listener.subscription.unsubscribe()
+        }
     }, [])
 
     const router = useRouter()
     const handleLogout = async () => {
         try {
-            await supabase.auth.signOut()
+            await supabaseBrowser.auth.signOut()
             setUser(null) // 로그아웃 후 사용자 상태를 null로 업데이트
-            router.push('/')
+            window.location.href = '/'
         } catch (error) {
             console.error('로그아웃 중 오류 발생:', error)
         }
