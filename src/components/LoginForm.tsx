@@ -146,7 +146,15 @@ export default function LoginForm() {
 
                         <div className="mt-6 grid grid-cols-2 gap-3">
                             <button
-                                type="button"
+                                onClick={async () => {
+                                    const { error } = await supabaseBrowser.auth.signInWithOAuth({
+                                        provider: 'google',
+                                        options: {
+                                            redirectTo: `http://localhost:3000/auth/callback`,
+                                        },
+                                    })
+                                    if (error) console.error('Error:', error.message)
+                                }}
                                 className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                             >
                                 <div className="w-5 h-5 flex items-center justify-center mr-2">
