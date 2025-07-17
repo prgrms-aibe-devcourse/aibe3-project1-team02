@@ -59,6 +59,19 @@ export default function MyPlansPage() {
         }
     }
 
+    const getBudgetText = (budget: string) => {
+        switch (budget) {
+            case 'low':
+                return '50만원 이하'
+            case 'medium':
+                return '50-100만원'
+            case 'high':
+                return '100-200만원'
+            default:
+                return '알 수 없음'
+        }
+    }
+
     const getDestinationImage = (destination: string, originalImage: string) => {
         switch (destination) {
             case '제주도':
@@ -151,7 +164,7 @@ export default function MyPlansPage() {
                                             </div>
                                             <div className="flex items-center text-sm text-gray-600">
                                                 <i className="ri-wallet-line w-4 h-4 mr-2" />
-                                                <span>{plan.budget}</span>
+                                                <span>{getBudgetText(plan.budget)}</span>
                                             </div>
                                         </div>
 

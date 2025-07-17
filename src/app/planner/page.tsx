@@ -79,11 +79,9 @@ export default function PlannerPage() {
         }))
     }
 
-    // nextStep 함수 수정
     const nextStep = () => {
         if (currentStep < 4) {
             const next = currentStep + 1
-            // 다음 단계가 4단계이면 100%, 아니면 25%씩 증가
             const newProgress = next === 4 ? 100 : (next - 1) * 25
             setPlanData((prev) => ({ ...prev, progress: newProgress }))
             setCurrentStep(next)
@@ -157,7 +155,6 @@ export default function PlannerPage() {
             </div>
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Progress Steps */}
                 <div className="flex items-center justify-center mb-12">
                     {steps.map((step, index) => (
                         <div key={step.id} className="flex items-center">
@@ -182,7 +179,6 @@ export default function PlannerPage() {
                 </div>
 
                 <div className="bg-white rounded-xl shadow-lg p-8">
-                    {/* Step 1: Destination */}
                     {currentStep === 1 && (
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -222,7 +218,6 @@ export default function PlannerPage() {
                         </div>
                     )}
 
-                    {/* Step 2: Dates & Travelers */}
                     {currentStep === 2 && (
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -310,7 +305,6 @@ export default function PlannerPage() {
                         </div>
                     )}
 
-                    {/* Step 3: Interests */}
                     {currentStep === 3 && (
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -340,8 +334,6 @@ export default function PlannerPage() {
                         </div>
                     )}
 
-                    {/* Step 4: Complete */}
-                    {/* Step 4 */}
                     {currentStep === 4 && (
                         <div className="text-center">
                             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
