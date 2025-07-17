@@ -4,6 +4,10 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 export async function POST(req: NextRequest) {
     const raw = await req.json()
 
+    if (!raw.user_id) {
+        return NextResponse.json({ success: false, error: 'Missing user_id' }, { status: 400 })
+    }
+
     const data = {
         title: `${raw.destination} 여행 계획`,
         destination: raw.destination,
@@ -18,6 +22,7 @@ export async function POST(req: NextRequest) {
             `https://readdy.ai/api/search-image?query=${encodeURIComponent(
                 raw.destination + ' 여행지',
             )}&width=300&height=200&seq=plan-${Date.now()}&orientation=landscape`,
+        user_id: raw.user_id,
     }
 
     const { error } = await supabaseAdmin.from('travel_plan').insert([data])
@@ -29,11 +34,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true })
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+    const { searchParams } = new URL(req.url)
+    const user_id = searchParams.get('user_id')
+
+    if (!user_id) {
+        return NextResponse.json({ success: false, error: 'Missing user_id' }, { status: 400 })
+    }
+
     try {
         const { data, error } = await supabaseAdmin
             .from('travel_plan')
             .select('*')
+            .eq('user_id', user_id)
             .order('created_at', { ascending: false })
 
         if (error) {
