@@ -1,3 +1,5 @@
+// app/api/plans/route.ts
+
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
@@ -12,12 +14,14 @@ export async function POST(req: NextRequest) {
         travelers: raw.travelers,
         status: 'planning',
         budget: raw.budget,
-        progress: 30,
+        progress: raw.progress,
         image:
             raw.image ??
             `https://readdy.ai/api/search-image?query=${encodeURIComponent(
                 raw.destination + ' 여행지',
             )}&width=300&height=200&seq=plan-${Date.now()}&orientation=landscape`,
+
+        plan_details: raw.planDetails ?? null,
     }
 
     const { error } = await supabaseAdmin.from('travel_plan').insert([data])
@@ -52,6 +56,7 @@ export async function GET() {
             budget: plan.budget,
             image: plan.image,
             progress: plan.progress,
+            planDetails: plan.plan_details,
         }))
 
         return NextResponse.json({ success: true, plans })
