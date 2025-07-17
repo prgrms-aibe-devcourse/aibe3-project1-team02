@@ -178,7 +178,7 @@ export default function CommunityPage() {
                                                 <img
                                                     src={post.image_url}
                                                     alt="Post image"
-                                                    className="w-full max-w-md h-40 object-cover object-top rounded-lg"
+                                                    className="w-full max-w-md rounded-xl object-cover"
                                                 />
                                             </div>
                                         )}
