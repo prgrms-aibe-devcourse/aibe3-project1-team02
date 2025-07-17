@@ -24,15 +24,19 @@ export default function CommunityPage() {
     ]
 
     const fetchData = async () => {
-        let { data: posts, error } = await supabase.from('review').select(`
-          *,
-          user: user (
-            profile_image
-          )
-        `)
-        setPosts(posts || [])
+        let { data: posts, error } = await supabase
+            .from('review')
+            .select(
+                `
+              *,
+              user: user (
+                profile_image
+              )
+            `,
+            )
+            .order('id', { ascending: false }) //id 기준 내림차순
 
-        //console.log('Fetched posts:', posts)
+        setPosts(posts || [])
 
         if (error) {
             console.error('Error fetching posts:', error)

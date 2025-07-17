@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase'
 export default function NewPostPage() {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
-    const [location, setLocation] = useState('')
     const [type, setType] = useState('review')
     const [imageUrl, setImageUrl] = useState('')
     const router = useRouter()
