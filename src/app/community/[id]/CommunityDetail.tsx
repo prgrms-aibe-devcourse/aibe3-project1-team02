@@ -139,11 +139,89 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         }
     }
 
-    const handleSubmitComment = () => {
-        if (newComment.trim()) {
-            setNewComment('??')
+    const handleSubmitComment = async () => {
+        if (!newComment.trim() || !post?.id) return
+
+        const {
+            data: { user: authUser },
+        } = await supabase.auth.getUser()
+
+        if (!authUser) {
+            alert('로그인이 필요합니다.')
+            return
+        }
+
+        const { data: userData, error: userError } = await supabase
+            .from('user')
+            .select('id')
+            .eq('auth_id', authUser.id)
+            .single()
+
+        if (userError || !userData) {
+            console.error('유저 테이블 조회 실패:', userError)
+            return
+        }
+
+        console.log(userData.id)
+
+        const { data, error } = await supabase
+            .from('review_comments')
+            .insert({
+                body: newComment,
+                review_id: post.id,
+                user_id: userData.id,
+            })
+            .select(`*, user: user (username, profile_image)`)
+
+        if (error) {
+            console.error('댓글 작성 실패:', error)
+            return
+        }
+
+        if (data && data.length > 0) {
+            setComments([data[0], ...comments])
+            setNewComment('')
         }
     }
+
+    const handleLike = async () => {
+        const newLiked = !isLiked
+        setIsLiked(newLiked) // UI 반영 먼저
+
+        const updatedLikes = post.likes + (newLiked ? 1 : -1)
+
+        const { error } = await supabase.from('review').update({ likes: updatedLikes }).eq('id', post.id)
+
+        if (error) {
+            console.error('좋아요 업데이트 실패:', error)
+            // 실패 시 UI 롤백도 가능
+            setIsLiked(!newLiked)
+        } else {
+            setPost({ ...post, likes: updatedLikes }) // UI에 반영
+        }
+    }
+
+    // const handleCommentLike = async (comment: Comment) => {
+    //     const newLiked = !isLiked
+    //     setIsLiked(newLiked)
+
+    //     const updatedLikes = comment.likes + (newLiked ? 1 : -1)
+
+    //     // UI 먼저 업데이트
+    //     setComments((prev) =>
+    //         prev.map((c) => (c.id === comment.id ? { ...c, likes: updatedLikes, isLiked: newLiked } : c)),
+    //     )
+
+    //     const { error } = await supabase.from('review_comments').update({ likes: updatedLikes }).eq('id', comment.id)
+
+    //     if (error) {
+    //         console.error('좋아요 업데이트 실패:', error)
+    //         // 롤백
+    //         setComments((prev) =>
+    //             prev.map((c) => (c.id === comment.id ? { ...c, likes: comment.likes, isLiked: !newLiked } : c)),
+    //         )
+    //     }
+    // }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -217,7 +295,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                         <div className="flex items-center justify-between py-4 border-t border-gray-200">
                             <div className="flex items-center gap-4">
                                 <button
-                                    onClick={() => setIsLiked(!isLiked)}
+                                    onClick={handleLike}
                                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                                         isLiked
                                             ? 'bg-red-50 text-red-600'
@@ -227,7 +305,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                     <div className="w-4 h-4 flex items-center justify-center">
                                         <i className={`${isLiked ? 'ri-heart-fill' : 'ri-heart-line'} text-sm`}></i>
                                     </div>
-                                    좋아요 {post.likes + (isLiked ? 1 : 0)}
+                                    좋아요 {post.likes}
                                 </button>
 
                                 <button
@@ -311,7 +389,10 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                             </div>
                                             <p className="text-gray-700 text-sm mb-2">{comment.body}</p>
                                             <div className="flex items-center gap-4">
-                                                <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
+                                                <button
+                                                    onClick={() => handleCommentLike(comment)}
+                                                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer"
+                                                >
                                                     <div className="w-3 h-3 flex items-center justify-center">
                                                         <i className="ri-thumb-up-line text-xs"></i>
                                                     </div>

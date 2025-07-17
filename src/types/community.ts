@@ -32,3 +32,12 @@ export interface Comment {
         profile_image: string
     }
 }
+
+type LikeType = 'review' | 'comment'
+
+export interface Like {
+    id: number
+    user_id: number
+    type: LikeType
+    target_id: number
+}
