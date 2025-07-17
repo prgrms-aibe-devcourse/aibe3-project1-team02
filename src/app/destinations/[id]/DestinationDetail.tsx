@@ -289,7 +289,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
             rating: 4.8,
             reviews: 234,
             includes: ['왕복항공료', '숙박 3박', '조식 포함', '현지 가이드'],
-            image: destination.images[0],
+            image: destination.highlights[0].image,
         },
         {
             id: 2,
@@ -300,7 +300,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
             rating: 4.9,
             reviews: 156,
             includes: ['왕복항공료', '특급호텔 4박', '전 일정 식사', '전용 가이드', '입장료'],
-            image: destination.images[1],
+            image: destination.highlights[1].image,
         },
     ]
 
