@@ -1,9 +1,10 @@
 'use client'
 
-import { supabase } from '@/lib/supabase'
+// import { supabase } from '@/lib/supabase'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 interface LoginFormData {
     email: string
@@ -38,7 +39,7 @@ export default function LoginForm() {
         setError('')
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({
+            const { error } = await supabaseBrowser.auth.signInWithPassword({
                 email: formData.email,
                 password: formData.password,
             })
@@ -50,6 +51,7 @@ export default function LoginForm() {
 
             console.log('로그인 성공')
             router.push('/')
+            //window.location.reload()
         } catch (err) {
             setError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.')
         } finally {
