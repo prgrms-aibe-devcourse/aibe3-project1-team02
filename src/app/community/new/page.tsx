@@ -7,12 +7,12 @@ import { supabase } from '@/lib/supabase'
 export default function NewPostPage() {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
-    const [location, setLocation] = useState('')
     const [type, setType] = useState('review')
     const [imageUrl, setImageUrl] = useState('')
     const router = useRouter()
     const [destinations, setDestinations] = useState<{ id: number; name: string }[]>([])
     const [selectedDestinationId, setSelectedDestinationId] = useState<number | null>(null)
+    const [imageFile, setImageFile] = useState<File | null>(null)
 
     const fetchDestinations = async () => {
         const { data, error } = await supabase.from('destination').select('id, name')
@@ -36,6 +36,25 @@ export default function NewPostPage() {
         if (!user) {
             alert('로그인이 필요합니다.')
             return
+        }
+
+        let imageUrl = ''
+
+        if (imageFile) {
+            const fileExt = imageFile.name.split('.').pop()
+            const fileName = `${Date.now()}.${fileExt}`
+            const filePath = `uploads/${fileName}`
+
+            const { error: uploadError } = await supabase.storage.from('review-images').upload(filePath, imageFile)
+
+            if (uploadError) {
+                console.error('업로드 실패:', uploadError)
+                return
+            }
+
+            const { data: publicUrlData } = supabase.storage.from('review-images').getPublicUrl(filePath)
+
+            imageUrl = publicUrlData.publicUrl
         }
 
         const { data: userData, error: userError } = await supabase
@@ -68,6 +87,7 @@ export default function NewPostPage() {
             console.error('글 작성 실패:', insertError)
             alert('글 작성에 실패했습니다.')
         } else {
+            alert('글이 등록되었습니다!')
             router.push('/community')
         }
     }
@@ -116,11 +136,10 @@ export default function NewPostPage() {
                     <option value="companion">동행구인</option>
                 </select>
                 <input
-                    type="text"
-                    placeholder="이미지 URL (선택)"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    className="w-full border border-gray-300 p-3 rounded"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                    className="block"
                 />
                 <button onClick={handleSubmit} className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">
                     등록
