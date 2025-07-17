@@ -1,9 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
-import { useEffect } from 'react'
+
 interface TravelPlan {
     id: string
     title: string
@@ -74,12 +74,6 @@ export default function MyPlansPage() {
         }
     }
 
-    /*
-    const mockPlans: TravelPlan[] = [
-        ...
-    ]
-    */
-
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />
@@ -117,122 +111,76 @@ export default function MyPlansPage() {
                 </div>
 
                 {filteredPlans.length === 0 ? (
-                    <div className="text-center py-16">
-                        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <div className="w-12 h-12 flex items-center justify-center">
-                                <i className="ri-map-pin-line text-gray-400 text-3xl"></i>
-                            </div>
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">아직 여행 계획이 없습니다</h3>
-                        <p className="text-gray-600 mb-6">첫 번째 여행 계획을 만들어보세요!</p>
-                        <Link
-                            href="/planner"
-                            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium"
-                        >
-                            계획 만들기
-                        </Link>
-                    </div>
+                    <div className="text-center py-16"></div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredPlans.map((plan) => (
-                            <div
-                                key={plan.id}
-                                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden"
-                            >
-                                <div className="relative">
-                                    <img
-                                        src={getDestinationImage(plan.destination, plan.image)}
-                                        alt={plan.title}
-                                        className="w-full h-48 object-cover object-top"
-                                    />
-                                    <div className="absolute top-4 right-4">
-                                        <span
-                                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(
-                                                plan.status,
-                                            )}`}
-                                        >
-                                            {getStatusText(plan.status)}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="p-6">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.title}</h3>
-                                    <p className="text-gray-600 mb-4">{plan.destination}</p>
-
-                                    <div className="space-y-2 mb-4">
-                                        <div className="flex items-center text-sm text-gray-600">
-                                            <i className="ri-calendar-line w-4 h-4 mr-2" />
-                                            <span>
-                                                {plan.startDate} ~ {plan.endDate}
+                            <Link key={plan.id} href={`/my-plans/${plan.id}`} className="block">
+                                <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col">
+                                    <div className="relative">
+                                        <img
+                                            src={getDestinationImage(plan.destination, plan.image)}
+                                            alt={plan.title}
+                                            className="w-full h-48 object-cover object-top"
+                                        />
+                                        <div className="absolute top-4 right-4">
+                                            <span
+                                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(
+                                                    plan.status,
+                                                )}`}
+                                            >
+                                                {getStatusText(plan.status)}
                                             </span>
                                         </div>
-                                        <div className="flex items-center text-sm text-gray-600">
-                                            <i className="ri-user-line w-4 h-4 mr-2" />
-                                            <span>{plan.travelers}명</span>
-                                        </div>
-                                        <div className="flex items-center text-sm text-gray-600">
-                                            <i className="ri-wallet-line w-4 h-4 mr-2" />
-                                            <span>{plan.budget}</span>
-                                        </div>
                                     </div>
 
-                                    {plan.status === 'planning' && (
-                                        <div className="mb-4">
-                                            <div className="flex justify-between text-sm text-gray-600 mb-1">
-                                                <span>계획 진행률</span>
-                                                <span>{plan.progress}%</span>
+                                    <div className="p-6 flex flex-col flex-grow">
+                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.title}</h3>
+                                        <p className="text-gray-600 mb-4">{plan.destination}</p>
+
+                                        <div className="space-y-2 mb-4">
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <i className="ri-calendar-line w-4 h-4 mr-2" />
+                                                <span>
+                                                    {plan.startDate} ~ {plan.endDate}
+                                                </span>
                                             </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                                <div
-                                                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                                    style={{ width: `${plan.progress}%` }}
-                                                ></div>
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <i className="ri-user-line w-4 h-4 mr-2" />
+                                                <span>{plan.travelers}명</span>
+                                            </div>
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <i className="ri-wallet-line w-4 h-4 mr-2" />
+                                                <span>{plan.budget}</span>
                                             </div>
                                         </div>
-                                    )}
 
-                                    <div className="flex gap-2">
-                                        <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap text-sm font-medium">
-                                            {plan.status === 'completed' ? '여행 기록 보기' : '계획 보기'}
-                                        </button>
-                                        <button className="px-3 py-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-                                            <div className="w-4 h-4 flex items-center justify-center">
-                                                <i className="ri-more-2-line"></i>
+                                        {plan.status === 'planning' && (
+                                            <div className="mb-4">
+                                                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                                                    <span>계획 진행률</span>
+                                                    <span>{plan.progress}%</span>
+                                                </div>
+                                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                                    <div
+                                                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                        style={{ width: `${plan.progress}%` }}
+                                                    ></div>
+                                                </div>
                                             </div>
-                                        </button>
+                                        )}
+
+                                        <div className="mt-auto pt-4">
+                                            <div className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap text-sm font-medium">
+                                                {plan.status === 'completed' ? '여행 기록 보기' : '계획 보기'}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}
-
-                {/* Quick Stats */}
-                <div className="mt-16 grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="bg-white rounded-xl p-6 text-center">
-                        <h4 className="text-2xl font-bold text-blue-600 mb-2">{plans.length}</h4>
-                        <p className="text-gray-600">총 여행 계획</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-6 text-center">
-                        <h4 className="text-2xl font-bold text-green-600 mb-2">
-                            {plans.filter((p) => p.status === 'completed').length}
-                        </h4>
-                        <p className="text-gray-600">완료된 여행</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-6 text-center">
-                        <h4 className="text-2xl font-bold text-yellow-600 mb-2">
-                            {plans.filter((p) => p.status === 'planning').length}
-                        </h4>
-                        <p className="text-gray-600">계획 중인 여행</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-6 text-center">
-                        <h4 className="text-2xl font-bold text-purple-600 mb-2">
-                            {plans.reduce((acc, p) => acc + p.travelers, 0)}
-                        </h4>
-                        <p className="text-gray-600">총 여행 인원</p>
-                    </div>
-                </div>
             </div>
 
             <Footer />
