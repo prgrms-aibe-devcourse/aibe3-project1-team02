@@ -35,6 +35,10 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             .single()
         setPost(post)
 
+        if (error) {
+            console.error('Error fetching posts:', error)
+        }
+
         let { data: comments, error: commentsError } = await supabase
             .from('review_comments')
             .select(
@@ -48,8 +52,18 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             .order('created_at', { ascending: false })
         setComments(comments || [])
 
-        if (error) {
-            console.error('Error fetching posts:', error)
+        if (commentsError) {
+            console.error('Error fetching comments:', commentsError)
+        }
+
+        const { error: updateError } = await supabase
+            .from('review')
+            .update({ views: post.views + 1 })
+            .eq('id', postId)
+
+        setPost({ ...post, views: post.views + 1 })
+        if (updateError) {
+            console.error('조회수 증가 실패', updateError)
         }
     }
 
