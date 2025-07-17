@@ -14,7 +14,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
     const [activeTab, setActiveTab] = useState('overview')
     const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
-    const destinations = {
+    const destinations = {//a
         '1': {
             name: '제주도',
             country: '대한민국',
