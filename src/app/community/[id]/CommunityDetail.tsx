@@ -18,6 +18,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
 
     const [post, setPost] = useState<Review>()
     const [comments, setComments] = useState<Comment[]>([])
+    const [profileImage, setProfileImage] = useState<string | null>(null)
 
     const fetchData = async () => {
         let { data: post, error } = await supabase
@@ -52,8 +53,28 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         }
     }
 
+    const fetchUserProfile = async () => {
+        const {
+            data: { user },
+            error: authError,
+        } = await supabase.auth.getUser()
+
+        if (authError || !user) return
+
+        const { data: userData, error } = await supabase
+            .from('user')
+            .select('profile_image')
+            .eq('auth_id', user.id)
+            .single()
+
+        if (!error && userData?.profile_image) {
+            setProfileImage(userData.profile_image)
+        }
+    }
+
     useEffect(() => {
         fetchData()
+        fetchUserProfile()
     }, [])
 
     if (!post || !comments) {
@@ -346,7 +367,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                         <div className="mb-6">
                             <div className="flex gap-3">
                                 <img
-                                    src="https://readdy.ai/api/search-image?query=Friendly%20user%20profile%20photo%20with%20warm%20smile%2C%20casual%20style%2C%20approachable%20personality&width=40&height=40&seq=current-user&orientation=squarish"
+                                    src={profileImage || '/default-profile.png'}
                                     alt="내 프로필"
                                     className="w-10 h-10 rounded-full object-cover object-top"
                                 />
