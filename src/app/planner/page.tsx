@@ -5,6 +5,7 @@ import { useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useRouter } from 'next/navigation'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 export default function PlannerPage() {
     const router = useRouter()
@@ -124,10 +125,21 @@ export default function PlannerPage() {
 
     const handleSavePlan = async () => {
         try {
+            const {
+                data: { user },
+            } = await supabaseBrowser.auth.getUser()
+            console.log('savePlan user:', user, error)
+            if (!user) {
+                alert('로그인이 필요합니다.')
+                return
+            }
+
+            const planToSave = { ...planData, user_id: user.id }
+
             const res = await fetch('/api/plans', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...planData, planDetails: generatedPlan }),
+body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
             })
 
             const result = await res.json()
@@ -142,7 +154,6 @@ export default function PlannerPage() {
             console.error('Plan Save Error:', err)
         }
     }
-
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />

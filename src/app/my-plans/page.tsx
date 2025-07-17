@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import { useEffect } from 'react'
+import { supabaseBrowser } from '@/lib/supabase-browser'
+
 
 interface TravelPlan {
     id: string
@@ -21,14 +24,26 @@ export default function MyPlansPage() {
     const [plans, setPlans] = useState<TravelPlan[]>([])
     const [activeTab, setActiveTab] = useState<'all' | 'planning' | 'confirmed' | 'completed'>('all')
 
-    useEffect(() => {
-        fetch('/api/plans')
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.success) setPlans(data.plans)
-            })
-    }, [])
+    const [loading, setLoading] = useState(true)
 
+    useEffect(() => {
+        const fetchPlans = async () => {
+            const {
+                data: { user },
+            } = await supabaseBrowser.auth.getUser()
+            if (!user) {
+                setPlans([])
+                setLoading(false)
+                return
+            }
+
+            const res = await fetch(`/api/plans?user_id=${user.id}`)
+            const data = await res.json()
+            if (data.success) setPlans(data.plans)
+            setLoading(false)
+        }
+        fetchPlans()
+    }, [])
     const filteredPlans = activeTab === 'all' ? plans : plans.filter((plan) => plan.status === activeTab)
 
     const getStatusBadge = (status: string) => {
