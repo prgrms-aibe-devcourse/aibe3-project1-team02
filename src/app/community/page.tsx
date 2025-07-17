@@ -6,12 +6,14 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
 import { Review } from '@/types/community'
+import { useRouter } from 'next/navigation'
 
 export default function CommunityPage() {
     const [activeTab, setActiveTab] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
 
     const [posts, setPosts] = useState<Review[]>([])
+    const router = useRouter()
 
     const tabs = [
         { id: 'all', name: '전체', icon: 'ri-global-line' },
@@ -108,7 +110,10 @@ export default function CommunityPage() {
                                 />
                             </div>
                         </div>
-                        <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium">
+                        <button
+                            onClick={() => router.push('/community/new')}
+                            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium"
+                        >
                             글쓰기
                         </button>
                     </div>

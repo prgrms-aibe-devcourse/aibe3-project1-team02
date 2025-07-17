@@ -183,8 +183,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             return
         }
 
-        console.log(userData.id)
-
         const { data, error } = await supabase
             .from('review_comments')
             .insert({
@@ -199,12 +197,23 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             return
         }
 
+        const { error: updateError } = await supabase
+            .from('review')
+            .update({
+                comments: post.comments + 1,
+            })
+            .eq('id', post.id)
+
+        if (updateError) {
+            console.error('댓글 수 업데이트 실패:', updateError)
+        }
+
         if (data && data.length > 0) {
             setComments([data[0], ...comments])
             setNewComment('')
+            setPost((prev) => prev && { ...prev, comments: prev.comments + 1 })
         }
     }
-
     const handleLike = async () => {
         const newLiked = !isLiked
         setIsLiked(newLiked) // UI 반영 먼저
