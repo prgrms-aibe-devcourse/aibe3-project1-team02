@@ -20,8 +20,14 @@ export async function POST(req: NextRequest) {
 - 예산: ${budget}
 - 관심사: ${interests.join(', ')}
 
-JSON 형식으로 아래 예시처럼 반환하세요:
+반드시 출발일(${dates.start})부터 도착일(${
+        dates.end
+    })까지의 날짜만 포함하고, 날짜별로 하나씩만 일정이 생성되게 하세요. 예를 들어 1박 2일(이틀)이면 두 날짜만, 3박 4일(네 날짜)이면 네 날짜만 반환하세요.
 
+날짜는 "YYYY-MM-DD" 형식만 사용하세요.
+JSON 배열만 반환하세요. 그 외 날짜, 설명, 예시는 포함하지 마세요.
+
+예시:
 [
   {
     "date": "2025-08-01",
@@ -29,19 +35,37 @@ JSON 형식으로 아래 예시처럼 반환하세요:
     "afternoon": "루브르 박물관 관람",
     "evening": "세느강 유람선 디너"
   },
-  ...
+  {
+    "date": "2025-08-02",
+    "morning": "에펠탑 관람",
+    "afternoon": "몽마르뜨 언덕 산책",
+    "evening": "파리 야경 감상"
+  }
 ]
 `
 
     try {
         const response = await openai.chat.completions.create({
-            model: 'gpt-4',
+            model: 'gpt-4o',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.7,
         })
 
-        const content = response.choices[0].message.content || '[]'
-        const plan = JSON.parse(content)
+        let content = response.choices[0].message.content || '[]'
+        if (content.includes('```')) {
+            content = content.replace(/```json|```/g, '').trim()
+        }
+        let plan = JSON.parse(content)
+
+        // 출발일~도착일 구간만 필터링(혹시 불필요한 날짜가 포함될 경우)
+        if (dates.start && dates.end) {
+            const start = new Date(dates.start)
+            const end = new Date(dates.end)
+            plan = plan.filter((item: any) => {
+                const date = new Date(item.date)
+                return date >= start && date <= end
+            })
+        }
 
         return NextResponse.json({ success: true, plan })
     } catch (error: any) {

@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 interface DestinationDetailProps {
-    destinationId: string
+  destinationId: string;
 }
 
 export default function DestinationDetail({ destinationId }: DestinationDetailProps) {
@@ -48,12 +48,12 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         );
       }
 
-    const tabs = [
-        { id: 'overview', name: '개요', icon: 'ri-information-line' },
-        { id: 'attractions', name: '관광명소', icon: 'ri-map-pin-line' },
-        { id: 'reviews', name: '후기', icon: 'ri-star-line' },
-        { id: 'packages', name: '패키지', icon: 'ri-gift-line' },
-    ]
+  const tabs = [
+    { id: 'overview', name: '개요', icon: 'ri-information-line' },
+    { id: 'attractions', name: '관광명소', icon: 'ri-map-pin-line' },
+    { id: 'reviews', name: '후기', icon: 'ri-star-line' },
+    { id: 'packages', name: '패키지', icon: 'ri-gift-line' }
+  ];
 
     const packages = [
         {
@@ -161,32 +161,32 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                     ))}
                 </div>
 
-                <div className="flex flex-wrap gap-4 mb-8">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
-                                activeTab === tab.id
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                        >
-                            <div className="w-4 h-4 flex items-center justify-center">
-                                <i className={`${tab.icon} text-sm`}></i>
-                            </div>
-                            {tab.name}
-                        </button>
-                    ))}
-                </div>
+        <div className="flex flex-wrap gap-4 mb-8">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <div className="w-4 h-4 flex items-center justify-center">
+                <i className={`${tab.icon} text-sm`}></i>
+              </div>
+              {tab.name}
+            </button>
+          ))}
+        </div>
 
-                {activeTab === 'overview' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="lg:col-span-2">
-                            <div className="mb-8">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-4">여행지 소개</h2>
-                                <p className="text-gray-700 leading-relaxed text-lg">{destination.description}</p>
-                            </div>
+        {activeTab === 'overview' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">여행지 소개</h2>
+                <p className="text-gray-700 leading-relaxed text-lg">{destination.description}</p>
+              </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                                 {destination.highlight.map((highlight: any, index: any) => (
@@ -198,95 +198,87 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                             </div>
                         </div>
 
-                        <div className="lg:col-span-1">
-                            <div className="bg-gray-50 rounded-xl p-6 sticky top-8">
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">여행 정보</h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <dt className="text-sm font-medium text-gray-600 mb-1">최적 여행시기</dt>
-                                        <dd className="text-gray-900">{destination.bestTime}</dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-sm font-medium text-gray-600 mb-1">권장 여행기간</dt>
-                                        <dd className="text-gray-900">{destination.duration}</dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-sm font-medium text-gray-600 mb-1">교통편</dt>
-                                        <dd className="text-gray-900">{destination.transportation}</dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-sm font-medium text-gray-600 mb-1">기후</dt>
-                                        <dd className="text-gray-900">{destination.climate}</dd>
-                                    </div>
-                                </div>
-                                <button
-                                    className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium mt-6"
-                                    onClick={() => router.push(`/planner?selected=${destination.name}`)}
-                                >
-                                    여행 계획 세우기
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+            <div className="lg:col-span-1">
+              <div className="bg-gray-50 rounded-xl p-6 sticky top-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">여행 정보</h3>
+                <div className="space-y-4">
+                  <div>
+                    <dt className="text-sm font-medium text-gray-600 mb-1">최적 여행시기</dt>
+                    <dd className="text-gray-900">{destination.bestTime}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-600 mb-1">권장 여행기간</dt>
+                    <dd className="text-gray-900">{destination.duration}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-600 mb-1">교통편</dt>
+                    <dd className="text-gray-900">{destination.transportation}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-600 mb-1">기후</dt>
+                    <dd className="text-gray-900">{destination.climate}</dd>
+                  </div>
+                </div>
+                <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium mt-6">
+                  여행 계획 세우기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
-                {activeTab === 'packages' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {packages.map((pkg) => (
-                            <div
-                                key={pkg.id}
-                                className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
-                            >
-                                <div className="relative h-48">
-                                    <img
-                                        src={pkg.image}
-                                        alt={pkg.title}
-                                        className="w-full h-full object-cover object-top"
-                                    />
-                                    <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-                                        {pkg.discount} 할인
-                                    </div>
-                                </div>
-                                <div className="p-6">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-4 h-4 flex items-center justify-center">
-                                                <i className="ri-star-fill text-yellow-400 text-sm"></i>
-                                            </div>
-                                            <span className="text-sm font-medium">{pkg.rating}</span>
-                                        </div>
-                                        <span className="text-sm text-gray-500">({pkg.reviews}개 후기)</span>
-                                    </div>
-                                    <div className="mb-4">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-2xl font-bold text-blue-600">{pkg.price}</span>
-                                            <span className="text-lg text-gray-400 line-through">
-                                                {pkg.originalPrice}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="mb-6">
-                                        <h4 className="font-medium text-gray-900 mb-2">포함 사항</h4>
-                                        <ul className="text-sm text-gray-600 space-y-1">
-                                            {pkg.includes.map((item, index) => (
-                                                <li key={index} className="flex items-center gap-2">
-                                                    <div className="w-3 h-3 flex items-center justify-center">
-                                                        <i className="ri-check-line text-green-500 text-xs"></i>
-                                                    </div>
-                                                    {item}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium">
-                                        예약하기
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+        {activeTab === 'packages' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {packages.map((pkg) => (
+              <div key={pkg.id} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="relative h-48">
+                  <img
+                    src={pkg.image}
+                    alt={pkg.title}
+                    className="w-full h-full object-cover object-top"
+                  />
+                  <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                    {pkg.discount} 할인
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 flex items-center justify-center">
+                        <i className="ri-star-fill text-yellow-400 text-sm"></i>
+                      </div>
+                      <span className="text-sm font-medium">{pkg.rating}</span>
                     </div>
-                )}
+                    <span className="text-sm text-gray-500">({pkg.reviews}개 후기)</span>
+                  </div>
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold text-blue-600">{pkg.price}</span>
+                      <span className="text-lg text-gray-400 line-through">{pkg.originalPrice}</span>
+                    </div>
+                  </div>
+                  <div className="mb-6">
+                    <h4 className="font-medium text-gray-900 mb-2">포함 사항</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      {pkg.includes.map((item, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <div className="w-3 h-3 flex items-center justify-center">
+                            <i className="ri-check-line text-green-500 text-xs"></i>
+                          </div>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium">
+                    예약하기
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
                 {activeTab === 'reviews' && (
                     <div className="space-y-6">
@@ -406,7 +398,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                 )}
             </div>
 
-            <Footer />
-        </div>
-    )
+      <Footer />
+    </div>
+  );
 }

@@ -1,26 +1,35 @@
+// app/planner/page.tsx
+
 'use client'
 import { useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { useRouter } from 'next/navigation'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 export default function PlannerPage() {
+    const router = useRouter()
     const [generatedPlan, setGeneratedPlan] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [currentStep, setCurrentStep] = useState(1)
+
     const [planData, setPlanData] = useState<{
         destination: string
         dates: { start: string; end: string }
         travelers: number
         budget: string
         interests: string[]
+        progress: number
     }>({
         destination: '',
         dates: { start: '', end: '' },
         travelers: 1,
         budget: '',
         interests: [],
+        progress: 0,
     })
+
     const steps = [
         { id: 1, title: '여행지 선택', icon: 'ri-map-pin-line' },
         { id: 2, title: '일정 설정', icon: 'ri-calendar-line' },
@@ -72,11 +81,21 @@ export default function PlannerPage() {
     }
 
     const nextStep = () => {
-        if (currentStep < 4) setCurrentStep(currentStep + 1)
+        if (currentStep < 4) {
+            const next = currentStep + 1
+            const newProgress = next === 4 ? 100 : (next - 1) * 25
+            setPlanData((prev) => ({ ...prev, progress: newProgress }))
+            setCurrentStep(next)
+        }
     }
 
     const prevStep = () => {
-        if (currentStep > 1) setCurrentStep(currentStep - 1)
+        if (currentStep > 1) {
+            const prev = currentStep - 1
+            const newProgress = (prev - 1) * 25
+            setPlanData((p) => ({ ...p, progress: newProgress }))
+            setCurrentStep(prev)
+        }
     }
 
     const handleGeneratePlan = async () => {
@@ -104,6 +123,37 @@ export default function PlannerPage() {
         }
     }
 
+    const handleSavePlan = async () => {
+        try {
+            const {
+                data: { user },
+            } = await supabaseBrowser.auth.getUser()
+            console.log('savePlan user:', user, error)
+            if (!user) {
+                alert('로그인이 필요합니다.')
+                return
+            }
+
+            const planToSave = { ...planData, user_id: user.id }
+
+            const res = await fetch('/api/plans', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
+            })
+
+            const result = await res.json()
+            if (result.success) {
+                alert('여행 계획이 저장되었습니다!')
+                router.push('/my-plans')
+            } else {
+                alert(`저장 실패: ${result.error}`)
+            }
+        } catch (err) {
+            alert('저장 중 오류가 발생했습니다.')
+            console.error('Plan Save Error:', err)
+        }
+    }
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />
@@ -116,7 +166,6 @@ export default function PlannerPage() {
             </div>
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Progress Steps */}
                 <div className="flex items-center justify-center mb-12">
                     {steps.map((step, index) => (
                         <div key={step.id} className="flex items-center">
@@ -141,7 +190,6 @@ export default function PlannerPage() {
                 </div>
 
                 <div className="bg-white rounded-xl shadow-lg p-8">
-                    {/* Step 1: Destination */}
                     {currentStep === 1 && (
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -181,7 +229,6 @@ export default function PlannerPage() {
                         </div>
                     )}
 
-                    {/* Step 2: Dates & Travelers */}
                     {currentStep === 2 && (
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -269,7 +316,6 @@ export default function PlannerPage() {
                         </div>
                     )}
 
-                    {/* Step 3: Interests */}
                     {currentStep === 3 && (
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -299,8 +345,6 @@ export default function PlannerPage() {
                         </div>
                     )}
 
-                    {/* Step 4: Complete */}
-                    {/* Step 4 */}
                     {currentStep === 4 && (
                         <div className="text-center">
                             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -364,6 +408,14 @@ export default function PlannerPage() {
                                                 </ul>
                                             </div>
                                         ))}
+                                    </div>
+                                    <div className="text-center mt-8">
+                                        <button
+                                            onClick={handleSavePlan}
+                                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition"
+                                        >
+                                            여행 계획 저장하기
+                                        </button>
                                     </div>
                                 </div>
                             )}
