@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
+import { SupabaseClient, useSupabaseClient } from '@supabase/auth-helpers-react'
 
 interface SignupFormData {
     name: string
@@ -29,6 +30,9 @@ export default function SignupForm() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const SignUp = () => {
+        const supabaseClient = useSupabaseClient()
+    }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target
@@ -315,14 +319,30 @@ export default function SignupForm() {
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-gray-600">
-                            이미 계정이 있으신가요?{' '}
-                            <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                                로그인
-                            </Link>
-                        </p>
+                    <div className="mt-4">
+                        <button
+                            onClick={async () => {
+                                const { error } = await supabase.auth.signInWithOAuth({
+                                    provider: 'kakao',
+                                    options: {
+                                        redirectTo: `http://localhost:3000/auth/callback`,
+                                    },
+                                })
+                                if (error) console.error('Error:', error.message)
+                            }}
+                            className="w-full py-3 px-4 bg-[#FEE500] text-[#000000] rounded-lg hover:bg-[#FDD835] transition-colors whitespace-nowrap cursor-pointer font-medium flex items-center justify-center space-x-2"
+                        >
+                            <img src="/kakao-logo.png" alt="Kakao" className="w-5 h-5" />
+                            <span>카카오로 시작하기</span>
+                        </button>
                     </div>
+
+                    <p className="text-sm text-gray-600 mt-4">
+                        이미 계정이 있으신가요?{' '}
+                        <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                            로그인
+                        </Link>
+                    </p>
                 </div>
             </div>
         </div>
