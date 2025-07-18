@@ -1,8 +1,8 @@
 'use client'
+
 import { useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
-import { SupabaseClient, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 
 interface SignupFormData {
@@ -27,13 +27,15 @@ export default function SignupForm() {
         agreementPrivacy: false,
         agreementMarketing: false,
     })
+    const [avatarFile, setAvatarFile] = useState<File | null>(null)
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({})
-    const SignUp = () => {
-        const supabaseClient = useSupabaseClient()
-    }
+
+    const DEFAULT_AVATAR =
+        'https://doqbxxyufpjyhztpdwyw.supabase.co/storage/v1/object/public/avatars/avatars/default-avatar.png'
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target
@@ -93,13 +95,28 @@ export default function SignupForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (!validateForm()) {
-            return
-        }
+        if (!validateForm()) return
 
         setIsLoading(true)
+        let avatarUrl = DEFAULT_AVATAR
 
         try {
+            // 이미지 업로드
+            if (avatarFile) {
+                const ext = avatarFile.name.split('.').pop()
+                const filePath = `avatars/${formData.email}-${Date.now()}.${ext}`
+
+                const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, avatarFile, {
+                    cacheControl: '3600',
+                    upsert: true,
+                })
+
+                if (!uploadError) {
+                    const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath)
+                    avatarUrl = publicUrlData.publicUrl
+                }
+            }
+
             const { data, error } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
@@ -107,6 +124,7 @@ export default function SignupForm() {
                     data: {
                         name: formData.name,
                         phone: formData.phone,
+                        avatar_url: avatarUrl,
                         agreementTerms: formData.agreementTerms,
                         agreementPrivacy: formData.agreementPrivacy,
                         agreementMarketing: formData.agreementMarketing,
@@ -252,6 +270,21 @@ export default function SignupForm() {
                                 placeholder="010-1234-5678"
                             />
                             {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">프로필 이미지 (선택)</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0]
+                                    if (file) {
+                                        setAvatarFile(file)
+                                        setAvatarPreview(URL.createObjectURL(file))
+                                    }
+                                }}
+                            />
                         </div>
 
                         <div className="space-y-3">
