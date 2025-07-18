@@ -146,30 +146,38 @@ export default function MyPlansPage() {
                     <div className="text-center py-16"></div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredPlans.map((plan) => {
-                            if (plan.status === 'confirmed') {
-                                console.log('plan:', plan)
-                                console.log('plan_details:', plan.plan_details)
-                            }
-                            if (plan.status === 'confirmed' && plan.planDetails) {
-                                const details = plan.planDetails || {}
-                                return (
-                                    <div
-                                        key={plan.id}
-                                        className="bg-white rounded-xl shadow-lg overflow-hidden mb-8 max-w-md"
-                                    >
-                                        <div className="relative h-48">
-                                            <img
-                                                src={plan.image}
-                                                alt={plan.title}
-                                                className="w-full h-full object-cover object-top"
-                                            />
-                                            {details.discount && (
-                                                <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-                                                    {details.discount}
-                                                    {String(details.discount).includes('%') ? '' : '%'} 할인
-                                                </div>
-                                            )}
+{filteredPlans.map((plan) => {
+    const isConfirmed = plan.status === 'confirmed';
+    const details = plan.planDetails || {};
+
+    return (
+        <Link key={plan.id} href={`/my-plans/${plan.id}`} className="block">
+            <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col max-w-md mb-8">
+                <div className="relative h-48">
+                    <img
+                        src={plan.image}
+                        alt={plan.title}
+                        className="w-full h-full object-cover object-top"
+                    />
+                    {isConfirmed && details.discount && (
+                        <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                            {details.discount}
+                            {String(details.discount).includes('%') ? '' : '%'} 할인
+                        </div>
+                    )}
+                    <div className="absolute top-4 right-4">
+                        <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(plan.status)}`}
+                        >
+                            {getStatusText(plan.status)}
+                        </span>
+                    </div>
+                </div>
+               
+            </div>
+        </Link>
+    );
+})}
                                         </div>
                                         <div className="p-6">
                                             <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.title}</h3>

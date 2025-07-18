@@ -157,7 +157,7 @@ export default function ModifyPlanPage() {
 
                 <textarea
                     name="title"
-                    value={plan.title}
+                    value={plan.title || ''}
                     onChange={handleInputChange}
                     className="w-full text-4xl font-bold text-gray-900 bg-transparent border-2 border-dashed border-gray-300 rounded-lg p-2 focus:outline-none focus:border-blue-500 resize-none"
                     rows={1}
@@ -172,7 +172,7 @@ export default function ModifyPlanPage() {
                                 <input
                                     type="text"
                                     name="destination"
-                                    value={plan.destination}
+                                    value={plan.destination || ''}
                                     onChange={handleInputChange}
                                     className="col-span-2 p-2 border rounded-md"
                                 />
@@ -182,7 +182,7 @@ export default function ModifyPlanPage() {
                                 <input
                                     type="date"
                                     name="start_date"
-                                    value={plan.start_date}
+                                    value={plan.start_date || ''}
                                     onChange={handleInputChange}
                                     className="col-span-2 p-2 border rounded-md"
                                 />
@@ -192,7 +192,7 @@ export default function ModifyPlanPage() {
                                 <input
                                     type="date"
                                     name="end_date"
-                                    value={plan.end_date}
+                                    value={plan.end_date || ''}
                                     onChange={handleInputChange}
                                     className="col-span-2 p-2 border rounded-md"
                                 />
@@ -202,7 +202,7 @@ export default function ModifyPlanPage() {
                                 <input
                                     type="number"
                                     name="travelers"
-                                    value={plan.travelers}
+                                    value={plan.travelers || 1}
                                     onChange={handleInputChange}
                                     className="col-span-2 p-2 border rounded-md"
                                     min="1"
@@ -212,7 +212,7 @@ export default function ModifyPlanPage() {
                                 <label className="font-semibold">💰 예산:</label>
                                 <select
                                     name="budget"
-                                    value={plan.budget}
+                                    value={plan.budget || ''}
                                     onChange={handleInputChange}
                                     className="col-span-2 p-2 border rounded-md bg-white"
                                 >
@@ -227,7 +227,7 @@ export default function ModifyPlanPage() {
                                 <label className="font-semibold">🔄 상태:</label>
                                 <select
                                     name="status"
-                                    value={plan.status}
+                                    value={plan.status || 'planning'}
                                     onChange={handleInputChange}
                                     className="col-span-2 p-2 border rounded-md bg-white"
                                 >
