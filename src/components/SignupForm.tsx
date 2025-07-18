@@ -111,10 +111,14 @@ export default function SignupForm() {
                     upsert: true,
                 })
 
-                if (!uploadError) {
-                    const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath)
-                    avatarUrl = publicUrlData.publicUrl
+                if (uploadError) {
+                    console.error('업로드 실패:', uploadError)
+                    return
                 }
+
+                const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath)
+
+                avatarUrl = publicUrlData.publicUrl
             }
 
             const { data, error } = await supabase.auth.signUp({
