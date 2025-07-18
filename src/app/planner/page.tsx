@@ -1,5 +1,3 @@
-// app/planner/page.tsx
-
 'use client'
 import { useState } from 'react'
 import Header from '@/components/Header'
@@ -13,6 +11,8 @@ export default function PlannerPage() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [currentStep, setCurrentStep] = useState(1)
+    const [editingPlan, setEditingPlan] = useState<any[]>([])
+    const [isEditing, setIsEditing] = useState(false)
 
     const [planData, setPlanData] = useState<{
         destination: string
@@ -102,25 +102,37 @@ export default function PlannerPage() {
         setLoading(true)
         setError('')
         setGeneratedPlan([])
-
+        setEditingPlan([])
+        setIsEditing(false)
         try {
             const res = await fetch('/api/generate-plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(planData),
             })
-
             const data = await res.json()
-            if (!data.success) {
-                throw new Error(data.error || '일정 생성 실패')
-            }
-
+            if (!data.success) throw new Error(data.error || '일정 생성 실패')
             setGeneratedPlan(data.plan)
+            setEditingPlan(data.plan)
         } catch (err: any) {
             setError(err.message)
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleEditPlan = () => {
+        setEditingPlan(generatedPlan.map((day) => ({ ...day })))
+        setIsEditing(true)
+    }
+
+    const handleSaveEditedPlan = () => {
+        setGeneratedPlan(editingPlan.map((day) => ({ ...day })))
+        setIsEditing(false)
+    }
+
+    const handleEditDayField = (idx: number, field: 'morning' | 'afternoon' | 'evening', value: string) => {
+        setEditingPlan((prev) => prev.map((day, i) => (i === idx ? { ...day, [field]: value } : day)))
     }
 
     const handleSavePlan = async () => {
@@ -139,7 +151,7 @@ export default function PlannerPage() {
             const res = await fetch('/api/plans', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
+                body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
             })
 
             const result = await res.json()
