@@ -119,6 +119,7 @@ export default function SignupForm() {
                 const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath)
 
                 avatarUrl = publicUrlData.publicUrl
+                //alert(avatarUrl)
             }
 
             const { data, error } = await supabase.auth.signUp({
@@ -143,6 +144,25 @@ export default function SignupForm() {
                 })
                 return
             }
+            //alert(avatarUrl)
+
+            const { error: insertError } = await supabase.from('user').insert([
+                {
+                    auth_id: data.user?.id,
+                    email: formData.email,
+                    username: formData.name,
+                    profile_image: avatarUrl, // ← 여기 연결
+                    phone_number: formData.phone,
+                },
+            ])
+
+            if (insertError) {
+                console.error('User insert error:', insertError)
+                setErrors({ submit: '회원가입 중 사용자 정보를 저장하는 데 실패했습니다.' })
+                return
+            }
+
+            //이미지 URL을 사용자 프로필에 업데이트
 
             if (data.user) {
                 console.log('Signup successful:', data)
