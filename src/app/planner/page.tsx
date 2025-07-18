@@ -4,6 +4,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
+import TravelPlanEditor from '@/components/TravelPlanEditor'
 
 export default function PlannerPage() {
     const router = useRouter()
@@ -358,80 +359,16 @@ export default function PlannerPage() {
                     )}
 
                     {currentStep === 4 && (
-                        <div className="text-center">
-                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i className="ri-check-line text-green-600 text-3xl" />
-                            </div>
-                            <h2 className="text-2xl font-bold mb-4">여행 계획이 완성되었습니다!</h2>
-
-                            <button
-                                onClick={handleGeneratePlan}
-                                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition mb-6"
-                            >
-                                맞춤 일정 확인하기
-                            </button>
-
-                            {loading && <p className="text-blue-500">AI가 일정을 생성 중입니다...</p>}
-                            {error && <p className="text-red-500 mt-2">{error}</p>}
-
-                            {!loading && generatedPlan.length > 0 && (
-                                <div className="text-left mt-10">
-                                    <div className="bg-gray-50 p-6 rounded-lg border mb-6">
-                                        <h3 className="text-lg font-semibold mb-4">📋 여행 계획 요약</h3>
-                                        <p>🗺 여행지: {planData.destination}</p>
-                                        <p>
-                                            📆 일정: {planData.dates.start} ~ {planData.dates.end}
-                                        </p>
-                                        <p>👥 인원: {planData.travelers}명</p>
-                                        <p>
-                                            💰 예산:{' '}
-                                            {
-                                                {
-                                                    low: '50만원 이하',
-                                                    medium: '50-100만원',
-                                                    high: '100-200만원',
-                                                    luxury: '200만원 이상',
-                                                }[planData.budget]
-                                            }
-                                        </p>
-                                        <p>
-                                            🎯 관심사:{' '}
-                                            {planData.interests
-                                                .map((id) => interests.find((i) => i.id === id)?.name)
-                                                .join(', ')}
-                                        </p>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <h3 className="text-lg font-semibold mb-2">🗓 맞춤 일정</h3>
-                                        {generatedPlan.map((day, idx) => (
-                                            <div key={idx} className="p-4 bg-white border rounded-lg shadow">
-                                                <h4 className="text-blue-600 font-semibold mb-2">{day.date}</h4>
-                                                <ul className="text-sm">
-                                                    <li>
-                                                        <strong>오전:</strong> {day.morning}
-                                                    </li>
-                                                    <li>
-                                                        <strong>오후:</strong> {day.afternoon}
-                                                    </li>
-                                                    <li>
-                                                        <strong>저녁:</strong> {day.evening}
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="text-center mt-8">
-                                        <button
-                                            onClick={handleSavePlan}
-                                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition"
-                                        >
-                                            여행 계획 저장하기
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                        <TravelPlanEditor
+                            planData={planData}
+                            interests={interests}
+                            loading={loading}
+                            error={error}
+                            generatedPlan={generatedPlan}
+                            setGeneratedPlan={setGeneratedPlan}
+                            handleGeneratePlan={handleGeneratePlan}
+                            handleSavePlan={handleSavePlan}
+                        />
                     )}
                     {/* Navigation Buttons */}
                     <div className="flex justify-between mt-8">
