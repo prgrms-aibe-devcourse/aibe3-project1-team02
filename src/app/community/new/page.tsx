@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 export default function NewPostPage() {
     const [title, setTitle] = useState('')
@@ -31,7 +32,7 @@ export default function NewPostPage() {
     const handleSubmit = async () => {
         const {
             data: { user },
-        } = await supabase.auth.getUser()
+        } = await supabaseBrowser.auth.getUser()
 
         if (!user) {
             alert('로그인이 필요합니다.')
