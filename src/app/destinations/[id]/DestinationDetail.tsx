@@ -54,9 +54,6 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         fetchData()
       }, [])
 
-    console.log(reviews)
-
-    console.log(destination)
 
     if (!destination) {
         return (
@@ -75,30 +72,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         { id: 'packages', name: '패키지', icon: 'ri-gift-line' },
     ]
 
-    const packagesa = [
-        {
-            id: 1,
-            title: `${destination.name} 자유여행 3박 4일`,
-            price: destination.price,
-            originalPrice: parseInt(destination.price.replace(/[^0-9]/g, '')) + 50000 + '원',
-            discount: '15%',
-            rating: 4.8,
-            reviews: 234,
-            includes: ['왕복항공료', '숙박 3박', '조식 포함', '현지 가이드'],
-            image: destination.highlight[0].image,
-        },
-        {
-            id: 2,
-            title: `${destination.name} 프리미엄 패키지`,
-            price: parseInt(destination.price.replace(/[^0-9]/g, '')) + 180000 + '원부터',
-            originalPrice: parseInt(destination.price.replace(/[^0-9]/g, '')) + 250000 + '원',
-            discount: '20%',
-            rating: 4.9,
-            reviews: 156,
-            includes: ['왕복항공료', '특급호텔 4박', '전 일정 식사', '전용 가이드', '입장료'],
-            image: destination.highlight[1].image,
-        },
-    ]
+
 
 
     return (
@@ -256,7 +230,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                     </div>
                                     <div className="mb-4">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-2xl font-bold text-blue-600">{pkg.price}</span>
+                                            <span className="text-2xl font-bold text-blue-600">{pkg.price.toLocaleString()}원</span>
                                             <span className="text-lg text-gray-400 line-through">
                                                 {pkg.originalPrice}
                                             </span>
