@@ -34,17 +34,6 @@ const budgetMap: { [key: string]: string } = {
     luxury: '200만원 이상',
 }
 
-const interestsMap: { [key: string]: string } = {
-    nature: '자연/힐링',
-    culture: '문화/역사',
-    food: '맛집/음식',
-    shopping: '쇼핑',
-    adventure: '모험/액티비티',
-    nightlife: '나이트라이프',
-    photography: '사진/인스타',
-    relaxation: '휴식/스파',
-}
-
 export default function PlanDetailPage() {
     const params = useParams()
     const router = useRouter()
