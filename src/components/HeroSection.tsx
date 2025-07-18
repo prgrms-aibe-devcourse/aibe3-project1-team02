@@ -6,7 +6,6 @@ import { supabase } from '@/lib/supabase'
 
 export default function HeroSection() {
     const [searchQuery, setSearchQuery] = useState('')
-    const [activeTab, setActiveTab] = useState<'destination' | 'package'>('destination')
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
 
@@ -16,28 +15,24 @@ export default function HeroSection() {
 
         setIsLoading(true)
 
-        if (activeTab === 'destination') {
-            const { data, error } = await supabase
-                .from('destination')
-                .select('id,name')
-                .ilike('name', `%${searchQuery}%`)
-                .limit(1)
-                .maybeSingle()
+        const { data, error } = await supabase
+            .from('destination')
+            .select('id,name')
+            .ilike('name', `%${searchQuery}%`)
+            .limit(1)
+            .maybeSingle()
 
-            setIsLoading(false)
+        setIsLoading(false)
 
-            if (error) {
-                alert('검색 중 오류가 발생했습니다.')
-                return
-            }
-            if (data && data.id) {
-                router.push(`/destinations/${data.id}`)
-            } else {
-                alert('검색 결과가 없습니다.')
-            }
+        if (error) {
+            alert('검색 중 오류가 발생했습니다.')
+            return
         }
-
-        // 패키지 검색 기능 추가 예정
+        if (data && data.id) {
+            router.push(`/destinations/${data.id}`)
+        } else {
+            alert('검색 결과가 없습니다.')
+        }
     }
 
     return (
@@ -61,31 +56,6 @@ export default function HeroSection() {
                         </p>
 
                         <form className="bg-white rounded-xl p-6 shadow-lg" onSubmit={handleSearch}>
-                            <div className="flex space-x-1 mb-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveTab('destination')}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
-                                        activeTab === 'destination'
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
-                                >
-                                    여행지 검색
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveTab('package')}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
-                                        activeTab === 'package'
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
-                                >
-                                    패키지 여행
-                                </button>
-                            </div>
-
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <div className="flex-1 relative">
                                     <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center">
@@ -93,7 +63,7 @@ export default function HeroSection() {
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="어디로 떠나고 싶으세요?"
+                                        placeholder="여행지명을 입력하세요"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
