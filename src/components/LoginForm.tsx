@@ -1,9 +1,9 @@
 'use client'
 
-import { supabase } from '@/lib/supabase'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 interface LoginFormData {
     email: string
@@ -38,7 +38,7 @@ export default function LoginForm() {
         setError('')
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({
+            const { error } = await supabaseBrowser.auth.signInWithPassword({
                 email: formData.email,
                 password: formData.password,
             })
@@ -49,7 +49,8 @@ export default function LoginForm() {
             }
 
             console.log('로그인 성공')
-            router.push('/')
+            window.location.href = '/'
+            //window.location.reload()
         } catch (err) {
             setError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.')
         } finally {
@@ -145,7 +146,15 @@ export default function LoginForm() {
 
                         <div className="mt-6 grid grid-cols-2 gap-3">
                             <button
-                                type="button"
+                                onClick={async () => {
+                                    const { error } = await supabaseBrowser.auth.signInWithOAuth({
+                                        provider: 'google',
+                                        options: {
+                                            redirectTo: `http://localhost:3000/auth/callback`,
+                                        },
+                                    })
+                                    if (error) console.error('Error:', error.message)
+                                }}
                                 className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                             >
                                 <div className="w-5 h-5 flex items-center justify-center mr-2">
@@ -155,6 +164,15 @@ export default function LoginForm() {
                             </button>
                             <button
                                 type="button"
+                                onClick={async () => {
+                                    const { error } = await supabaseBrowser.auth.signInWithOAuth({
+                                        provider: 'kakao',
+                                        options: {
+                                            redirectTo: `http://localhost:3000/auth/callback`,
+                                        },
+                                    })
+                                    if (error) console.error('Error:', error.message)
+                                }}
                                 className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                             >
                                 <div className="w-5 h-5 flex items-center justify-center mr-2">

@@ -2,6 +2,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '../lib/supabase'
+import { SupabaseClient, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 interface SignupFormData {
     name: string
@@ -29,6 +31,9 @@ export default function SignupForm() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const SignUp = () => {
+        const supabaseClient = useSupabaseClient()
+    }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target
@@ -315,14 +320,59 @@ export default function SignupForm() {
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-gray-600">
-                            이미 계정이 있으신가요?{' '}
-                            <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                                로그인
-                            </Link>
-                        </p>
+                    <div className="mt-6">
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-300" />
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-white text-gray-500">또는</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-2 gap-3">
+                            <button
+                                onClick={async () => {
+                                    const { error } = await supabaseBrowser.auth.signInWithOAuth({
+                                        provider: 'google',
+                                        options: {
+                                            redirectTo: `http://localhost:3000/auth/callback`,
+                                        },
+                                    })
+                                    if (error) console.error('Error:', error.message)
+                                }}
+                                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                            >
+                                <div className="w-5 h-5 flex items-center justify-center mr-2">
+                                    <i className="ri-google-fill text-red-500"></i>
+                                </div>
+                                <span className="text-sm text-gray-700">Google로 시작하기</span>
+                            </button>
+
+                            <button
+                                onClick={async () => {
+                                    const { error } = await supabaseBrowser.auth.signInWithOAuth({
+                                        provider: 'kakao',
+                                        options: {
+                                            redirectTo: `http://localhost:3000/auth/callback`,
+                                        },
+                                    })
+                                    if (error) console.error('Error:', error.message)
+                                }}
+                                className="flex items-center justify-center px-4 py-2 border bg-[#FEE500] text-[#000000] rounded-lg hover:bg-[#FDD835] transition-colors whitespace-nowrap cursor-pointer font-medium space-x-2"
+                            >
+                                <img src="/kakao-logo.png" alt="Kakao" className="w-5 h-5" />
+                                <span className="text-sm text-gray-700">카카오로 시작하기</span>
+                            </button>
+                        </div>
                     </div>
+
+                    <p className="text-sm text-gray-600 mt-4">
+                        이미 계정이 있으신가요?{' '}
+                        <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                            로그인
+                        </Link>
+                    </p>
                 </div>
             </div>
         </div>
