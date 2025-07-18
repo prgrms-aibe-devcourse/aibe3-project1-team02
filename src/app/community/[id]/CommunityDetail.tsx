@@ -19,6 +19,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
     const [post, setPost] = useState<Review>()
     const [comments, setComments] = useState<Comment[]>([])
     const [profileImage, setProfileImage] = useState<string | null>(null)
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null)
 
     const fetchData = async () => {
         let { data: post, error } = await supabase
@@ -67,7 +68,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         }
     }
 
-    const fetchUserProfile = async () => {
+    const fetchUserData = async () => {
         const {
             data: { user },
             error: authError,
@@ -77,18 +78,19 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
 
         const { data: userData, error } = await supabase
             .from('user')
-            .select('profile_image')
+            .select('profile_image, id')
             .eq('auth_id', user.id)
             .single()
 
         if (!error && userData?.profile_image) {
             setProfileImage(userData.profile_image)
         }
+        setCurrentUserId(userData?.id ?? null)
     }
 
     useEffect(() => {
         fetchData()
-        fetchUserProfile()
+        fetchUserData()
     }, [])
 
     if (!post || !comments) {
@@ -186,23 +188,23 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             return
         }
 
-        const { data: userData, error: userError } = await supabase
-            .from('user')
-            .select('id')
-            .eq('auth_id', authUser.id)
-            .single()
+        // const { data: userData, error: userError } = await supabase
+        //     .from('user')
+        //     .select('id')
+        //     .eq('auth_id', authUser.id)
+        //     .single()
 
-        if (userError || !userData) {
-            console.error('유저 테이블 조회 실패:', userError)
-            return
-        }
+        // if (userError || !userData) {
+        //     console.error('유저 테이블 조회 실패:', userError)
+        //     return
+        // }
 
         const { data, error } = await supabase
             .from('review_comments')
             .insert({
                 body: newComment,
                 review_id: post.id,
-                user_id: userData.id,
+                user_id: currentUserId,
             })
             .select(`*, user: user (username, profile_image)`)
 
@@ -228,6 +230,32 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             setPost((prev) => prev && { ...prev, comments: prev.comments + 1 })
         }
     }
+
+    const handleDelete = async (commentId: number) => {
+        const { error: commentError } = await supabase.from('review_comments').delete().eq('id', commentId)
+
+        console.log('댓글 삭제 요청:', commentId)
+
+        if (commentError) {
+            console.error('댓글 삭제 실패:', commentError)
+            return
+        } else {
+            alert('댓글 삭제 완료!')
+            fetchData()
+        }
+
+        const { error: updateError } = await supabase
+            .from('review')
+            .update({
+                comments: post.comments - 1,
+            })
+            .eq('id', post.id)
+
+        if (updateError) {
+            console.error('댓글 수 업데이트 실패:', updateError)
+        }
+    }
+
     const handleLike = async () => {
         const newLiked = !isLiked
         setIsLiked(newLiked) // UI 반영 먼저
@@ -429,11 +457,22 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                 <span className="font-medium text-gray-900">
                                                     {comment.user?.username}
                                                 </span>
+                                                {comment.user_id === currentUserId && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            handleDelete(comment.id)
+                                                        }}
+                                                        className="text-red-500 hover:underline text-sm"
+                                                    >
+                                                        삭제
+                                                    </button>
+                                                )}
                                                 <span className="text-sm text-gray-500">{comment.created_at}</span>
                                             </div>
                                             <p className="text-gray-700 text-sm mb-2">{comment.body}</p>
                                             <div className="flex items-center gap-4">
-                                                <button
+                                                {/* <button
                                                     onClick={() => handleCommentLike(comment)}
                                                     className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer"
                                                 >
@@ -441,7 +480,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                         <i className="ri-thumb-up-line text-xs"></i>
                                                     </div>
                                                     {comment.likes}
-                                                </button>
+                                                </button> */}
                                                 <button className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
                                                     답글
                                                 </button>
