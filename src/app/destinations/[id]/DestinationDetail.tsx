@@ -214,12 +214,12 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                         className="w-full h-full object-cover object-top"
                                     />
                                     <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-                                        {pkg.discount} 할인
+                                        {pkg.discount}% 할인
                                     </div>
                                 </div>
                                 <div className="p-6">
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
-                                    <div className="flex items-center gap-2 mb-3">
+                                    {/* <div className="flex items-center gap-2 mb-3">
                                         <div className="flex items-center gap-1">
                                             <div className="w-4 h-4 flex items-center justify-center">
                                                 <i className="ri-star-fill text-yellow-400 text-sm"></i>
@@ -227,7 +227,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                             <span className="text-sm font-medium">{pkg.rating}</span>
                                         </div>
                                         <span className="text-sm text-gray-500">({pkg.reviews}개 후기)</span>
-                                    </div>
+                                    </div> */}
                                     <div className="mb-4">
                                         <div className="flex items-center gap-2">
                                             <span className="text-2xl font-bold text-blue-600">{pkg.price.toLocaleString()}원</span>
