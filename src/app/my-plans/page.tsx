@@ -16,6 +16,12 @@ interface TravelPlan {
     budget: string
     image: string
     progress: number
+    plan_details?: {
+        price: string
+        original_price: string
+        discount: string
+        includes: string[]
+    }
 }
 
 export default function MyPlansPage() {
@@ -140,71 +146,143 @@ export default function MyPlansPage() {
                     <div className="text-center py-16"></div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredPlans.map((plan) => (
-                            <Link key={plan.id} href={`/my-plans/${plan.id}`} className="block">
-                                <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col">
-                                    <div className="relative">
-                                        <img
-                                            src={plan.image}
-                                            alt={plan.title}
-                                            className="w-full h-48 object-cover object-top"
-                                        />
-                                        <div className="absolute top-4 right-4">
-                                            <span
-                                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(
-                                                    plan.status,
-                                                )}`}
-                                            >
-                                                {getStatusText(plan.status)}
-                                            </span>
+{filteredPlans.map((plan) => {
+    const isConfirmed = plan.status === 'confirmed';
+    const details = plan.planDetails || {};
+
+    return (
+        <Link key={plan.id} href={`/my-plans/${plan.id}`} className="block">
+            <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col max-w-md mb-8">
+                <div className="relative h-48">
+                    <img
+                        src={plan.image}
+                        alt={plan.title}
+                        className="w-full h-full object-cover object-top"
+                    />
+                    {isConfirmed && details.discount && (
+                        <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                            {details.discount}
+                            {String(details.discount).includes('%') ? '' : '%'} 할인
+                        </div>
+                    )}
+                    <div className="absolute top-4 right-4">
+                        <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(plan.status)}`}
+                        >
+                            {getStatusText(plan.status)}
+                        </span>
+                    </div>
+                </div>
+               
+            </div>
+        </Link>
+    );
+})}
+                                        </div>
+                                        <div className="p-6">
+                                            <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.title}</h3>
+                                            <div className="mb-4">
+                                                <span className="text-2xl font-bold text-blue-600">
+                                                    {details.price
+                                                        ? `${Number(
+                                                              String(details.price).replace(/[^0-9]/g, ''),
+                                                          ).toLocaleString()}원`
+                                                        : ''}
+                                                </span>
+                                                {details.original_price && (
+                                                    <span className="text-lg text-gray-400 line-through ml-2">
+                                                        {details.original_price}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="mb-6">
+                                                <h4 className="font-medium text-gray-900 mb-2">포함 사항</h4>
+                                                <ul className="text-sm text-gray-600 space-y-1">
+                                                    {details.includes &&
+                                                        details.includes.map((item: string, idx: number) => (
+                                                            <li key={idx} className="flex items-center gap-2">
+                                                                <div className="w-3 h-3 flex items-center justify-center">
+                                                                    <i className="ri-check-line text-green-500 text-xs"></i>
+                                                                </div>
+                                                                {item}
+                                                            </li>
+                                                        ))}
+                                                </ul>
+                                            </div>
+                                            <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium">
+                                                계획 보기
+                                            </button>
                                         </div>
                                     </div>
-
-                                    <div className="p-6 flex flex-col flex-grow">
-                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.title}</h3>
-                                        <p className="text-gray-600 mb-4">{plan.destination}</p>
-
-                                        <div className="space-y-2 mb-4">
-                                            <div className="flex items-center text-sm text-gray-600">
-                                                <i className="ri-calendar-line w-4 h-4 mr-2" />
-                                                <span>
-                                                    {plan.startDate} ~ {plan.endDate}
+                                )
+                            }
+                            // 그 외(기존 여행계획 카드)
+                            return (
+                                <Link key={plan.id} href={`/my-plans/${plan.id}`} className="block">
+                                    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col">
+                                        <div className="relative">
+                                            <img
+                                                src={getDestinationImage(plan.destination, plan.image)}
+                                                alt={plan.title}
+                                                className="w-full h-48 object-cover object-top"
+                                            />
+                                            <div className="absolute top-4 right-4">
+                                                <span
+                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(
+                                                        plan.status,
+                                                    )}`}
+                                                >
+                                                    {getStatusText(plan.status)}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center text-sm text-gray-600">
-                                                <i className="ri-user-line w-4 h-4 mr-2" />
-                                                <span>{plan.travelers}명</span>
-                                            </div>
-                                            <div className="flex items-center text-sm text-gray-600">
-                                                <i className="ri-wallet-line w-4 h-4 mr-2" />
-                                                <span>{getBudgetText(plan.budget)}</span>
-                                            </div>
                                         </div>
 
-                                        {plan.status === 'planning' && (
-                                            <div className="mb-4">
-                                                <div className="flex justify-between text-sm text-gray-600 mb-1">
-                                                    <span>계획 진행률</span>
-                                                    <span>{plan.progress}%</span>
+                                        <div className="p-6 flex flex-col flex-grow">
+                                            <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.title}</h3>
+                                            <p className="text-gray-600 mb-4">{plan.destination}</p>
+
+                                            <div className="space-y-2 mb-4">
+                                                <div className="flex items-center text-sm text-gray-600">
+                                                    <i className="ri-calendar-line w-4 h-4 mr-2" />
+                                                    <span>
+                                                        {plan.startDate} ~ {plan.endDate}
+                                                    </span>
                                                 </div>
-                                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                                    <div
-                                                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                                        style={{ width: `${plan.progress}%` }}
-                                                    ></div>
+                                                <div className="flex items-center text-sm text-gray-600">
+                                                    <i className="ri-user-line w-4 h-4 mr-2" />
+                                                    <span>{plan.travelers}명</span>
+                                                </div>
+                                                <div className="flex items-center text-sm text-gray-600">
+                                                    <i className="ri-wallet-line w-4 h-4 mr-2" />
+                                                    <span>{getBudgetText(plan.budget)}</span>
                                                 </div>
                                             </div>
-                                        )}
 
-                                        <div className="mt-auto pt-4">
-                                            <div className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap text-sm font-medium">
-                                                {plan.status === 'completed' ? '여행 기록 보기' : '계획 보기'}
+                                            {plan.status === 'planning' && (
+                                                <div className="mb-4">
+                                                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                                                        <span>계획 진행률</span>
+                                                        <span>{plan.progress}%</span>
+                                                    </div>
+                                                    <div className="w-full bg-gray-200 rounded-full h-2">
+                                                        <div
+                                                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                            style={{ width: `${plan.progress}%` }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="mt-auto pt-4">
+                                                <div className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap text-sm font-medium">
+                                                    {plan.status === 'completed' ? '여행 기록 보기' : '계획 보기'}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            )
+                        })}
                     </div>
                 )}
             </div>

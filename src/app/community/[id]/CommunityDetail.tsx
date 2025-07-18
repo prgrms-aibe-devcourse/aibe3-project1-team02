@@ -22,6 +22,28 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
     const [profileImage, setProfileImage] = useState<string | null>(null)
     const [currentUserId, setCurrentUserId] = useState<number | null>(null)
 
+    const [replyToCommentId, setReplyToCommentId] = useState<number | null>(null)
+    const [replyContent, setReplyContent] = useState('')
+
+    function nestComments(flatComments: Comment[]): Comment[] {
+        const commentMap: { [id: number]: Comment } = {}
+        const nested: Comment[] = []
+
+        flatComments.forEach((comment) => {
+            commentMap[comment.id] = { ...comment, replies: [] } // 👈 replies 직접 넣어줌
+        })
+
+        flatComments.forEach((comment) => {
+            if (comment.parent_id) {
+                commentMap[comment.parent_id]?.replies?.push(commentMap[comment.id])
+            } else {
+                nested.push(commentMap[comment.id])
+            }
+        })
+
+        return nested
+    }
+
     const fetchUserData = async () => {
         const {
             data: { user },
@@ -70,7 +92,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             )
             .eq('review_id', postId)
             .order('created_at', { ascending: false })
-        setComments(comments || [])
+        setComments(nestComments(comments || []))
 
         if (commentsError) {
             console.error('Error fetching comments:', commentsError)
@@ -121,55 +143,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         return <div className="text-center py-10">로딩 중...</div>
     }
 
-    // const comments = [
-    //     {
-    //         id: 1,
-    //         author: '일본여행고수',
-    //         avatar: 'https://readdy.ai/api/search-image?query=Experienced%20Japanese%20traveler%20with%20friendly%20smile%2C%20casual%20travel%20outfit%2C%20knowledgeable%20and%20helpful%20appearance&width=50&height=50&seq=comment-avatar-1&orientation=squarish',
-    //         date: '2024-01-15',
-    //         content:
-    //             '7일 일정이면 JR패스 사는 게 맞아요! 도쿄-오사카만 왕복해도 거의 본전이고, 교토까지 가면 확실히 이득입니다. 개별 티켓은 더 비싸요.',
-    //         likes: 12,
-    //         replies: [
-    //             {
-    //                 id: 11,
-    //                 author: post.author,
-    //                 avatar: post.user?.profile_image,
-    //                 date: '2024-01-15',
-    //                 content:
-    //                     post.type === 'review'
-    //                         ? '롯데렌터카에서 빌렸어요! 가격도 괜찮고 차량 상태도 좋았습니다 👍'
-    //                         : '정말 그런가요? 그럼 JR패스로 결정해야겠네요. 감사합니다!',
-    //                 likes: 3,
-    //             },
-    //         ],
-    //     },
-    //     // {
-    //     //     id: 2,
-    //     //     author: '여행매니아',
-    //     //     avatar: 'https://readdy.ai/api/search-image?query=Travel%20enthusiast%20with%20bright%20smile%2C%20backpack%20and%20travel%20gear%2C%20adventurous%20and%20energetic%20personality&width=50&height=50&seq=comment-avatar-2&orientation=squarish',
-    //     //     date: '2024-01-14',
-    //     //     content:
-    //     //         post.type === 'review'
-    //     //             ? '사진도 너무 예쁘게 찍으셨네요! 특히 성산일출봉 사진이 정말 멋져요. 카메라는 뭐 쓰셨나요?'
-    //     //             : 'IC카드(Suica, Pasmo)도 추천해요! 지하철이나 버스 탈 때 편리하고, 편의점에서도 결제 가능합니다.',
-    //     //     likes: 8,
-    //     //     replies: [],
-    //     // },
-    //     // {
-    //     //     id: 3,
-    //     //     author: post.type === 'review' ? '제주도토박이' : '도쿄거주자',
-    //     //     avatar: 'https://readdy.ai/api/search-image?query=Local%20resident%20with%20warm%20and%20welcoming%20expression%2C%20casual%20outfit%2C%20helpful%20and%20knowledgeable%20appearance&width=50&height=50&seq=comment-avatar-3&orientation=squarish',
-    //     //     date: '2024-01-14',
-    //     //     content:
-    //     //         post.type === 'review'
-    //     //             ? '제주 현지인으로서 gerçekten 잘 다녀가신 것 같아요! 다음에 오시면 더 숨겨진 맛집들도 알려드릴게요 ㅎㅎ'
-    //     //             : '도쿄 살고 있는데, 관광지 많이 다니실 거면 JR패스가 확실히 경제적이에요. 특히 야마노테선 자주 타게 될 텐데 JR패스면 무제한이거든요.',
-    //     //     likes: 15,
-    //     //     replies: [],
-    //     // },
-    // ]
-
     const getTypeLabel = (type: string) => {
         switch (type) {
             case 'review':
@@ -200,8 +173,8 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         }
     }
 
-    const handleSubmitComment = async () => {
-        if (!newComment.trim() || !post?.id) return
+    const handleSubmitComment = async (parentId?: number) => {
+        //if (!newComment.trim() || !post?.id || !replyContent.trim()) return
 
         const {
             data: { user: authUser },
@@ -215,9 +188,10 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         const { data, error } = await supabase
             .from('review_comments')
             .insert({
-                body: newComment,
+                body: parentId ? replyContent : newComment,
                 review_id: post.id,
                 user_id: currentUserId,
+                parent_id: parentId || null,
             })
             .select(`*, user: user (username, profile_image)`)
 
@@ -225,6 +199,9 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             console.error('댓글 작성 실패:', error)
             return
         }
+
+        // fetchComment를 따로 분리시켜야 더 좋을 듯 합니다.
+        fetchData()
 
         const { error: updateError } = await supabase
             .from('review')
@@ -242,12 +219,19 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             setNewComment('')
             setPost((prev) => prev && { ...prev, comments: prev.comments + 1 })
         }
+
+        setReplyContent('')
+        setReplyToCommentId(null)
     }
 
     const handleDelete = async (commentId: number) => {
-        const { error: commentError } = await supabase.from('review_comments').delete().eq('id', commentId)
+        const { error: childCommentError } = await supabase.from('review_comments').delete().eq('parent_id', commentId)
 
-        console.log('댓글 삭제 요청:', commentId)
+        if (childCommentError) {
+            console.error('답글 삭제 실패:', childCommentError)
+            return
+        }
+        const { error: commentError } = await supabase.from('review_comments').delete().eq('id', commentId)
 
         if (commentError) {
             console.error('댓글 삭제 실패:', commentError)
@@ -313,6 +297,9 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             setIsLiked(newLiked)
         }
         fetchLikes()
+    }
+    type NestedComment = Comment & {
+        replies?: NestedComment[]
     }
 
     // const handleCommentLike = async (comment: Comment) => {
@@ -422,7 +409,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                     좋아요 {post.likes}
                                 </button>
 
-                                <button
+                                {/* <button
                                     onClick={() => setIsBookmarked(!isBookmarked)}
                                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                                         isBookmarked
@@ -438,16 +425,16 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                         ></i>
                                     </div>
                                     북마크
-                                </button>
+                                </button> */}
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 cursor-pointer">
+                                {/* <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 cursor-pointer">
                                     <div className="w-4 h-4 flex items-center justify-center">
                                         <i className="ri-share-line text-sm"></i>
                                     </div>
                                     공유
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </div>
@@ -474,7 +461,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                     />
                                     <div className="flex justify-end mt-2">
                                         <button
-                                            onClick={handleSubmitComment}
+                                            onClick={() => handleSubmitComment()}
                                             disabled={!newComment.trim()}
                                             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors cursor-pointer whitespace-nowrap text-sm"
                                         >
@@ -513,8 +500,8 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                 <span className="text-sm text-gray-500">{comment.created_at}</span>
                                             </div>
                                             <p className="text-gray-700 text-sm mb-2">{comment.body}</p>
-                                            {/* <div className="flex items-center gap-4">
-                                                <button
+                                            <div className="flex items-center gap-4">
+                                                {/* <button
                                                     onClick={() => handleLike('comment')}
                                                     className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer"
                                                 >
@@ -522,13 +509,45 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                         <i className="ri-thumb-up-line text-xs"></i>
                                                     </div>
                                                     {comment.likes}
-                                                </button>
-                                                <button className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
+                                                </button> */}
+                                                <button
+                                                    className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer"
+                                                    onClick={() => setReplyToCommentId(comment.id)}
+                                                >
                                                     답글
                                                 </button>
-                                            </div> */}
+                                            </div>
+                                            {replyToCommentId === comment.id && (
+                                                <div className="mt-2">
+                                                    <textarea
+                                                        value={replyContent}
+                                                        onChange={(e) => setReplyContent(e.target.value)}
+                                                        placeholder="답글을 입력하세요..."
+                                                        className="w-full p-2 border border-gray-300 rounded-md text-sm resize-none"
+                                                        rows={2}
+                                                    />
+                                                    <div className="flex justify-end mt-1 gap-2">
+                                                        <button
+                                                            onClick={() => handleSubmitComment(comment.id)}
+                                                            disabled={!replyContent.trim()}
+                                                            className="text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded text-sm disabled:bg-gray-300"
+                                                        >
+                                                            작성
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setReplyToCommentId(null)
+                                                                setReplyContent('')
+                                                            }}
+                                                            className="text-sm text-gray-400 hover:underline"
+                                                        >
+                                                            취소
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                            {/* {comment.replies && comment.replies.length > 0 && (
+                                            {comment.replies && (
                                                 <div className="mt-4 space-y-3">
                                                     {comment.replies.map((reply) => (
                                                         <div
@@ -536,33 +555,44 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                             className="flex items-start gap-3 pl-4 border-l border-gray-200"
                                                         >
                                                             <img
-                                                                src={reply.avatar}
-                                                                alt={reply.author}
+                                                                src={reply.user?.profile_image}
+                                                                alt={reply.user?.username}
                                                                 className="w-8 h-8 rounded-full object-cover object-top"
                                                             />
                                                             <div className="flex-1">
                                                                 <div className="flex items-center gap-2 mb-1">
                                                                     <span className="font-medium text-gray-900 text-sm">
-                                                                        {reply.author}
+                                                                        {reply.user?.username}
                                                                     </span>
+                                                                    {reply.user_id === currentUserId && (
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation()
+                                                                                handleDelete(reply.id)
+                                                                            }}
+                                                                            className="text-red-500 hover:underline text-sm"
+                                                                        >
+                                                                            삭제
+                                                                        </button>
+                                                                    )}
                                                                     <span className="text-xs text-gray-500">
-                                                                        {reply.date}
+                                                                        {reply.created_at}
                                                                     </span>
                                                                 </div>
                                                                 <p className="text-gray-700 text-sm mb-1">
-                                                                    {reply.content}
+                                                                    {reply.body}
                                                                 </p>
-                                                                <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
+                                                                {/* <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
                                                                     <div className="w-3 h-3 flex items-center justify-center">
                                                                         <i className="ri-thumb-up-line text-xs"></i>
                                                                     </div>
                                                                     {reply.likes}
-                                                                </button>
+                                                                </button> */}
                                                             </div>
                                                         </div>
                                                     ))}
                                                 </div>
-                                            )} */}
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -571,7 +601,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                     </div>
                 </div>
             </div>
-
             <Footer />
         </div>
     )

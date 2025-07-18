@@ -26,6 +26,9 @@ export interface Comment {
 
     review_id: number
     user_id: number
+    parent_id: number
+
+    replies?: Comment[]
 
     user?: {
         username: string
@@ -34,10 +37,13 @@ export interface Comment {
 }
 
 type LikeType = 'review' | 'comment'
-
 export interface Like {
     id: number
     user_id: number
     type: LikeType
     target_id: number
+}
+
+type NestedComment = Comment & {
+    replies?: NestedComment[]
 }
