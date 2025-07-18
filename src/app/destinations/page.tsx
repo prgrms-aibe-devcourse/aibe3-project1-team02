@@ -1,12 +1,15 @@
 
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { supabase } from '@/lib/supabase';
+
 
 export default function DestinationsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [destinations, setDestinations] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
@@ -18,76 +21,16 @@ export default function DestinationsPage() {
     { id: 'oceania', name: '오세아니아', icon: 'ri-sun-line' }
   ];
 
-  const destinations = [
-    {
-      id: 1,
-      name: '제주도',
-      country: '대한민국',
-      category: 'domestic',
-      image: 'https://readdy.ai/api/search-image?query=Beautiful%20Jeju%20Island%20landscape%20with%20Hallasan%20mountain%2C%20emerald%20ocean%2C%20and%20traditional%20Korean%20stone%20walls%2C%20peaceful%20island%20atmosphere%20with%20clear%20blue%20sky%20and%20lush%20green%20nature&width=400&height=300&seq=jeju-dest-1&orientation=landscape',
-      rating: 4.8,
-      reviews: 2847,
-      price: '120,000원부터',
-      tags: ['자연', '힐링', '해변']
-    },
-    {
-      id: 2,
-      name: '부산',
-      country: '대한민국',
-      category: 'domestic',
-      image: 'https://readdy.ai/api/search-image?query=Busan%20cityscape%20with%20colorful%20Gamcheon%20village%20houses%2C%20beautiful%20beaches%2C%20and%20modern%20skyscrapers%2C%20vibrant%20Korean%20coastal%20city%20with%20mountain%20backdrop&width=400&height=300&seq=busan-dest-2&orientation=landscape',
-      rating: 4.7,
-      reviews: 1923,
-      price: '95,000원부터',
-      tags: ['도시', '해변', '문화']
-    },
-    {
-      id: 3,
-      name: '도쿄',
-      country: '일본',
-      category: 'asia',
-      image: 'https://readdy.ai/api/search-image?query=Tokyo%20cityscape%20with%20cherry%20blossoms%2C%20traditional%20temples%2C%20modern%20skyscrapers%2C%20and%20bustling%20streets%2C%20vibrant%20Japanese%20metropolitan%20atmosphere%20with%20cultural%20blend&width=400&height=300&seq=tokyo-dest-3&orientation=landscape',
-      rating: 4.9,
-      reviews: 3542,
-      price: '380,000원부터',
-      tags: ['도시', '쇼핑', '문화']
-    },
-    {
-      id: 4,
-      name: '파리',
-      country: '프랑스',
-      category: 'europe',
-      image: 'https://readdy.ai/api/search-image?query=Paris%20cityscape%20with%20Eiffel%20Tower%2C%20Seine%20river%2C%20classic%20Haussmanian%20architecture%2C%20and%20charming%20cobblestone%20streets%2C%20romantic%20European%20atmosphere%20with%20warm%20golden%20lighting&width=400&height=300&seq=paris-dest-4&orientation=landscape',
-      rating: 4.8,
-      reviews: 4126,
-      price: '650,000원부터',
-      tags: ['로맨틱', '예술', '역사']
-    },
-    {
-      id: 5,
-      name: '뉴욕',
-      country: '미국',
-      category: 'america',
-      image: 'https://readdy.ai/api/search-image?query=New%20York%20City%20skyline%20with%20iconic%20skyscrapers%2C%20Central%20Park%2C%20Brooklyn%20Bridge%2C%20and%20busy%20Manhattan%20streets%2C%20dynamic%20American%20metropolitan%20atmosphere&width=400&height=300&seq=newyork-dest-5&orientation=landscape',
-      rating: 4.7,
-      reviews: 2864,
-      price: '720,000원부터',
-      tags: ['도시', '쇼핑', '엔터테인먼트']
-    },
-    {
-      id: 6,
-      name: '시드니',
-      country: '호주',
-      category: 'oceania',
-      image: 'https://readdy.ai/api/search-image?query=Sydney%20harbor%20with%20Opera%20House%2C%20Harbor%20Bridge%2C%20beautiful%20beaches%2C%20and%20modern%20cityscape%2C%20stunning%20Australian%20coastal%20city%20with%20crystal%20clear%20waters&width=400&height=300&seq=sydney-dest-6&orientation=landscape',
-      rating: 4.9,
-      reviews: 1765,
-      price: '580,000원부터',
-      tags: ['해변', '자연', '도시']
+  useEffect(() => {
+    async function fetchData() {
+      const { data, error } = await supabase.rpc('get_destination_overview');
+      setDestinations(data);
     }
-  ];
+    fetchData();
+  }, []);
+  console.log(destinations);
 
-  const filteredDestinations = destinations.filter(dest => {
+  const filteredDestinations = destinations.filter((dest: any) => {
     const matchesCategory = selectedCategory === 'all' || dest.category === selectedCategory;
     const matchesSearch = dest.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          dest.country.toLowerCase().includes(searchQuery.toLowerCase());
@@ -145,7 +88,7 @@ export default function DestinationsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredDestinations.map((destination) => (
+          {filteredDestinations.map((destination: any) => (
             <Link key={destination.id} href={`/destinations/${destination.id}`}>
               <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
                 <div className="relative h-48">
@@ -174,7 +117,7 @@ export default function DestinationsPage() {
                   </div>
                   
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {destination.tags.map((tag, index) => (
+                    {destination.tags.map((tag: any, index: any) => (
                       <span key={index} className="bg-blue-50 text-blue-600 px-2 py-1 rounded-full text-xs">
                         #{tag}
                       </span>

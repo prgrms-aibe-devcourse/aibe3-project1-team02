@@ -12,6 +12,8 @@ export async function generateStaticParams() {
   ];
 }
 
-export default function DestinationPage({ params }: { params: { id: string } }) {
-  return <DestinationDetail destinationId={params.id} />;
+export default async function DestinationPage({ params }: { params: { id: string } }) {
+  const awaitedParams = await params;
+
+  return <DestinationDetail destinationId={awaitedParams.id} />;
 }

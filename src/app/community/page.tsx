@@ -6,12 +6,15 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
 import { Review } from '@/types/community'
+import { useRouter } from 'next/navigation'
 
 export default function CommunityPage() {
     const [activeTab, setActiveTab] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
 
     const [posts, setPosts] = useState<Review[]>([])
+    const router = useRouter()
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null)
 
     const tabs = [
         { id: 'all', name: '전체', icon: 'ri-global-line' },
@@ -22,15 +25,41 @@ export default function CommunityPage() {
     ]
 
     const fetchData = async () => {
-        let { data: posts, error } = await supabase.from('review').select(`
-          *,
-          user: user (
-            profile_image
-          )
-        `)
+        let { data: posts, error } = await supabase
+            .from('review')
+            .select(
+                `
+              *,
+              user: user (
+                profile_image
+              )
+            `,
+            )
+            .order('id', { ascending: false }) //id 기준 내림차순
+
         setPosts(posts || [])
 
-        //console.log('Fetched posts:', posts)
+        const {
+            data: { user },
+        } = await supabase.auth.getUser()
+
+        if (!user) {
+            alert('로그인이 필요합니다.')
+            return
+        }
+
+        const { data: userData, error: userError } = await supabase
+            .from('user')
+            .select('id')
+            .eq('auth_id', user.id)
+            .single()
+
+        if (userError) {
+            console.error('사용자 정보 불러오기 실패:', userError)
+            return
+        } else {
+            setCurrentUserId(userData?.id ?? null)
+        }
 
         if (error) {
             console.error('Error fetching posts:', error)
@@ -40,6 +69,29 @@ export default function CommunityPage() {
     useEffect(() => {
         fetchData()
     }, [])
+
+    const handleDelete = async (postId: number) => {
+        const { error: commentError } = await supabase.from('review_comments').delete().eq('review_id', postId)
+
+        if (commentError) {
+            console.error('댓글 삭제 실패:', commentError)
+            return
+        }
+
+        const { error: reviewError } = await supabase.from('review').delete().eq('id', postId)
+
+        if (reviewError) {
+            console.error('삭제 실패:', reviewError)
+            alert('후기 삭제에 실패했습니다.')
+        } else {
+            alert('후기 삭제 완료!')
+            fetchData()
+        }
+    }
+
+    const handleCardClick = (id: number) => {
+        router.push(`/community/${id}`)
+    }
 
     const filteredPosts = posts.filter((post) => {
         const matchesTab = activeTab === 'all' || post.type === activeTab
@@ -108,7 +160,10 @@ export default function CommunityPage() {
                                 />
                             </div>
                         </div>
-                        <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium">
+                        <button
+                            onClick={() => router.push('/community/new')}
+                            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium"
+                        >
                             글쓰기
                         </button>
                     </div>
@@ -135,17 +190,21 @@ export default function CommunityPage() {
 
                 <div className="space-y-6">
                     {filteredPosts.map((post) => (
-                        <Link key={post.id} href={`/community/${post.id}`}>
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-                                <div className="flex items-start gap-4">
-                                    <img
-                                        src={post.user?.profile_image}
-                                        alt={post.author}
-                                        className="w-12 h-12 rounded-full object-cover object-top"
-                                    />
+                        <div
+                            key={post.id}
+                            onClick={() => handleCardClick(post.id)}
+                            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+                        >
+                            <div className="flex items-start gap-4">
+                                <img
+                                    src={post.user?.profile_image}
+                                    alt={post.author}
+                                    className="w-12 h-12 rounded-full object-cover object-top"
+                                />
 
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-2">
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-3">
                                             <span
                                                 className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(
                                                     post.type,
@@ -158,23 +217,36 @@ export default function CommunityPage() {
                                             <span className="text-sm text-gray-400">{post.date}</span>
                                         </div>
 
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
-                                            {post.title}
-                                        </h3>
-
-                                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{post.content}</p>
-
-                                        {post.image_url && (
-                                            <div className="mb-4">
-                                                <img
-                                                    src={post.image_url}
-                                                    alt="Post image"
-                                                    className="w-full max-w-md h-40 object-cover object-top rounded-lg"
-                                                />
-                                            </div>
+                                        {post.user_id === currentUserId && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    handleDelete(post.id)
+                                                }}
+                                                className="text-red-500 hover:underline text-sm"
+                                            >
+                                                삭제
+                                            </button>
                                         )}
+                                    </div>
 
-                                        {/* <div className="flex flex-wrap gap-2 mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                                        {post.title}
+                                    </h3>
+
+                                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{post.content}</p>
+
+                                    {post.image_url && (
+                                        <div className="mb-4">
+                                            <img
+                                                src={post.image_url}
+                                                alt="Post image"
+                                                className="w-full max-w-md rounded-xl object-cover"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* <div className="flex flex-wrap gap-2 mb-4">
                                             {post.tags.map((tag, index) => (
                                                 <span
                                                     key={index}
@@ -185,36 +257,35 @@ export default function CommunityPage() {
                                             ))}
                                         </div> */}
 
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-1 text-sm text-gray-500">
-                                                <span className="font-medium">{post.author}</span>
-                                            </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                                            <span className="font-medium">{post.author}</span>
+                                        </div>
 
-                                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                                                <div className="flex items-center gap-1">
-                                                    <div className="w-4 h-4 flex items-center justify-center">
-                                                        <i className="ri-eye-line text-xs"></i>
-                                                    </div>
-                                                    <span>{post.views.toLocaleString()}</span>
+                                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                                            <div className="flex items-center gap-1">
+                                                <div className="w-4 h-4 flex items-center justify-center">
+                                                    <i className="ri-eye-line text-xs"></i>
                                                 </div>
-                                                <div className="flex items-center gap-1">
-                                                    <div className="w-4 h-4 flex items-center justify-center">
-                                                        <i className="ri-heart-line text-xs"></i>
-                                                    </div>
-                                                    <span>{post.likes}</span>
+                                                <span>{post.views.toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <div className="w-4 h-4 flex items-center justify-center">
+                                                    <i className="ri-heart-line text-xs"></i>
                                                 </div>
-                                                <div className="flex items-center gap-1">
-                                                    <div className="w-4 h-4 flex items-center justify-center">
-                                                        <i className="ri-chat-3-line text-xs"></i>
-                                                    </div>
-                                                    <span>{post.comments}</span>
+                                                <span>{post.likes}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <div className="w-4 h-4 flex items-center justify-center">
+                                                    <i className="ri-chat-3-line text-xs"></i>
                                                 </div>
+                                                <span>{post.comments}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </Link>
+                        </div>
                     ))}
                 </div>
 
