@@ -23,7 +23,7 @@ export default function PopularDestinations() {
         {
             id: 3,
             name: '도쿄',
-            description: '일본의 수도 도쿄는 전통과 현대가 조화로운 도시',
+            description: '전통과 현대가 조화로운 도시',
             image: '/tokyoimage.png',
             rating: 4.9,
             reviews: 3812,
@@ -31,7 +31,7 @@ export default function PopularDestinations() {
         {
             id: 4,
             name: '파리',
-            description: '프랑스의 수도 파리는 예술과 낭만의 도시',
+            description: '예술과 낭만의 도시',
             image: '/parisimage.png',
             rating: 4.9,
             reviews: 2950,
