@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
 import { Review } from '@/types/community'
 import { useRouter } from 'next/navigation'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 export default function CommunityPage() {
     const [activeTab, setActiveTab] = useState('all')
@@ -41,12 +42,14 @@ export default function CommunityPage() {
 
         const {
             data: { user },
-        } = await supabase.auth.getUser()
+        } = await supabaseBrowser.auth.getUser()
 
         if (!user) {
             alert('로그인이 필요합니다.')
             return
         }
+
+        console.log('uuid: ' + user.id)
 
         const { data: userData, error: userError } = await supabase
             .from('user')

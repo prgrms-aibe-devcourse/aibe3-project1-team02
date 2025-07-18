@@ -6,6 +6,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { Review, Comment } from '@/types/community'
 import { supabase } from '@/lib/supabase'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 interface CommunityDetailProps {
     postId: string
@@ -25,7 +26,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         const {
             data: { user },
             error: authError,
-        } = await supabase.auth.getUser()
+        } = await supabaseBrowser.auth.getUser()
 
         if (authError || !user) return
 
