@@ -6,6 +6,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { Review, Comment } from '@/types/community'
 import { supabase } from '@/lib/supabase'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 interface CommunityDetailProps {
     postId: string
@@ -19,27 +20,50 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
     const [post, setPost] = useState<Review>()
     const [comments, setComments] = useState<Comment[]>([])
     const [profileImage, setProfileImage] = useState<string | null>(null)
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null)
+
+    const fetchUserData = async () => {
+        const {
+            data: { user },
+            error: authError,
+        } = await supabaseBrowser.auth.getUser()
+
+        if (authError || !user) return
+
+        const { data: userData, error } = await supabase
+            .from('user')
+            .select('profile_image, id')
+            .eq('auth_id', user.id)
+            .single()
+
+        if (!error && userData?.profile_image) {
+            setProfileImage(userData.profile_image)
+        }
+        setCurrentUserId(userData?.id ?? null)
+    }
 
     const fetchData = async () => {
         let { data: post, error } = await supabase
             .from('review')
             .select(
-                `
-        *,
-        user: user (
-          profile_image
-        )
-      `,
+                `*,
+            user: user (
+            profile_image
+        )`,
             )
             .eq('id', postId)
             .single()
+
+        if (error) {
+            console.error('Error fetching posts:', error)
+        }
         setPost(post)
 
         let { data: comments, error: commentsError } = await supabase
             .from('review_comments')
             .select(
                 `*,
-          user: user (
+            user: user (
             username,
             profile_image
         )`,
@@ -48,34 +72,50 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             .order('created_at', { ascending: false })
         setComments(comments || [])
 
-        if (error) {
-            console.error('Error fetching posts:', error)
+        if (commentsError) {
+            console.error('Error fetching comments:', commentsError)
+        }
+
+        const { error: updateError } = await supabase
+            .from('review')
+            .update({ views: post.views + 1 })
+            .eq('id', postId)
+
+        setPost({ ...post, views: post.views + 1 })
+        if (updateError) {
+            console.error('조회수 증가 실패', updateError)
         }
     }
 
-    const fetchUserProfile = async () => {
-        const {
-            data: { user },
-            error: authError,
-        } = await supabase.auth.getUser()
+    const fetchLikes = async () => {
+        if (!currentUserId || !post) return
 
-        if (authError || !user) return
+        const { data: likes, error } = await supabase
+            .from('likes')
+            .select('*')
+            .eq('user_id', currentUserId)
+            .eq('target_id', post.id)
+            .eq('type', 'review')
+            .maybeSingle()
 
-        const { data: userData, error } = await supabase
-            .from('user')
-            .select('profile_image')
-            .eq('auth_id', user.id)
-            .single()
-
-        if (!error && userData?.profile_image) {
-            setProfileImage(userData.profile_image)
+        if (error) {
+            console.error('Error fetching likes:', error)
+        } else {
+            setIsLiked(likes ? true : false)
         }
     }
 
     useEffect(() => {
+        fetchUserData()
         fetchData()
-        fetchUserProfile()
     }, [])
+
+    //post와 currentUserId가 세팅된 이후에만 fetchLikes()가 실행
+    useEffect(() => {
+        if (post?.id && currentUserId) {
+            fetchLikes()
+        }
+    }, [post, currentUserId])
 
     if (!post || !comments) {
         return <div className="text-center py-10">로딩 중...</div>
@@ -172,23 +212,12 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             return
         }
 
-        const { data: userData, error: userError } = await supabase
-            .from('user')
-            .select('id')
-            .eq('auth_id', authUser.id)
-            .single()
-
-        if (userError || !userData) {
-            console.error('유저 테이블 조회 실패:', userError)
-            return
-        }
-
         const { data, error } = await supabase
             .from('review_comments')
             .insert({
                 body: newComment,
                 review_id: post.id,
-                user_id: userData.id,
+                user_id: currentUserId,
             })
             .select(`*, user: user (username, profile_image)`)
 
@@ -214,21 +243,76 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             setPost((prev) => prev && { ...prev, comments: prev.comments + 1 })
         }
     }
+
+    const handleDelete = async (commentId: number) => {
+        const { error: commentError } = await supabase.from('review_comments').delete().eq('id', commentId)
+
+        console.log('댓글 삭제 요청:', commentId)
+
+        if (commentError) {
+            console.error('댓글 삭제 실패:', commentError)
+            return
+        } else {
+            alert('댓글 삭제 완료!')
+            fetchData()
+        }
+
+        const { error: updateError } = await supabase
+            .from('review')
+            .update({
+                comments: post.comments - 1,
+            })
+            .eq('id', post.id)
+
+        if (updateError) {
+            console.error('댓글 수 업데이트 실패:', updateError)
+        }
+    }
+
     const handleLike = async () => {
+        if (!currentUserId) {
+            alert('로그인이 필요합니다.')
+            return
+        }
+
+        if (isLiked) {
+            const { error } = await supabase
+                .from('likes')
+                .delete()
+                .eq('user_id', currentUserId)
+                .eq('target_id', post.id)
+                .eq('type', 'review')
+            if (error) {
+                console.error('좋아요 취소 실패:', error)
+                return
+            }
+        } else {
+            const { error } = await supabase.from('likes').insert({
+                user_id: currentUserId,
+                target_id: post.id,
+                type: 'review',
+            })
+            if (error) {
+                console.error('좋아요 추가 실패:', error)
+                return
+            }
+        }
+
         const newLiked = !isLiked
-        setIsLiked(newLiked) // UI 반영 먼저
 
         const updatedLikes = post.likes + (newLiked ? 1 : -1)
 
-        const { error } = await supabase.from('review').update({ likes: updatedLikes }).eq('id', post.id)
+        const { error: updateerror } = await supabase.from('review').update({ likes: updatedLikes }).eq('id', post.id)
 
-        if (error) {
-            console.error('좋아요 업데이트 실패:', error)
+        if (updateerror) {
+            console.error('좋아요 업데이트 실패:', updateerror)
             // 실패 시 UI 롤백도 가능
             setIsLiked(!newLiked)
         } else {
             setPost({ ...post, likes: updatedLikes }) // UI에 반영
+            setIsLiked(newLiked)
         }
+        fetchLikes()
     }
 
     // const handleCommentLike = async (comment: Comment) => {
@@ -415,12 +499,23 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                 <span className="font-medium text-gray-900">
                                                     {comment.user?.username}
                                                 </span>
+                                                {comment.user_id === currentUserId && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            handleDelete(comment.id)
+                                                        }}
+                                                        className="text-red-500 hover:underline text-sm"
+                                                    >
+                                                        삭제
+                                                    </button>
+                                                )}
                                                 <span className="text-sm text-gray-500">{comment.created_at}</span>
                                             </div>
                                             <p className="text-gray-700 text-sm mb-2">{comment.body}</p>
-                                            <div className="flex items-center gap-4">
+                                            {/* <div className="flex items-center gap-4">
                                                 <button
-                                                    onClick={() => handleCommentLike(comment)}
+                                                    onClick={() => handleLike('comment')}
                                                     className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer"
                                                 >
                                                     <div className="w-3 h-3 flex items-center justify-center">
@@ -431,7 +526,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                 <button className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
                                                     답글
                                                 </button>
-                                            </div>
+                                            </div> */}
 
                                             {/* {comment.replies && comment.replies.length > 0 && (
                                                 <div className="mt-4 space-y-3">

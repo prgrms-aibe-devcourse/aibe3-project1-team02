@@ -1,18 +1,23 @@
-// app/planner/page.tsx
-
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
+import TravelPlanEditor from '@/components/TravelPlanEditor'
+import { supabase } from '@/lib/supabase'
+
 
 export default function PlannerPage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [generatedPlan, setGeneratedPlan] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [currentStep, setCurrentStep] = useState(1)
+    const [editingPlan, setEditingPlan] = useState<any[]>([])
+    const [isEditing, setIsEditing] = useState(false)
+    const [destinations, setDestinations] = useState<any[]>([])
 
     const [planData, setPlanData] = useState<{
         destination: string
@@ -30,34 +35,35 @@ export default function PlannerPage() {
         progress: 0,
     })
 
+    // 여행지 데이터 가져오기
+    useEffect(() => {
+        async function fetchDestinations() {
+            const { data, error } = await supabase.rpc('get_destination_overview')
+            if (error) {
+                console.error('Error fetching destinations:', error)
+                return
+            }
+            setDestinations(data || [])
+        }
+        fetchDestinations()
+    }, [])
+
+    // URL 파라미터에서 destination 값을 읽어와서 초기 상태 설정
+    useEffect(() => {
+        const destinationFromUrl = searchParams.get('destination')
+        if (destinationFromUrl) {
+            setPlanData((prev) => ({
+                ...prev,
+                destination: decodeURIComponent(destinationFromUrl),
+            }))
+        }
+    }, [searchParams])
+
     const steps = [
         { id: 1, title: '여행지 선택', icon: 'ri-map-pin-line' },
         { id: 2, title: '일정 설정', icon: 'ri-calendar-line' },
         { id: 3, title: '취향 선택', icon: 'ri-heart-line' },
         { id: 4, title: '완성', icon: 'ri-check-line' },
-    ]
-
-    const destinations = [
-        {
-            name: '제주도',
-            country: '대한민국',
-            image: 'https://readdy.ai/api/search-image?query=Beautiful%20Jeju%20Island%20with%20Hallasan%20mountain%20and%20emerald%20sea%2C%20peaceful%20Korean%20island%20landscape%20with%20traditional%20stone%20walls%20and%20natural%20beauty&width=300&height=200&seq=jeju-plan-1&orientation=landscape',
-        },
-        {
-            name: '부산',
-            country: '대한민국',
-            image: 'https://readdy.ai/api/search-image?query=Busan%20coastal%20city%20with%20colorful%20Gamcheon%20village%20and%20beautiful%20beaches%2C%20vibrant%20Korean%20seaside%20destination%20with%20modern%20and%20traditional%20elements&width=300&height=200&seq=busan-plan-2&orientation=landscape',
-        },
-        {
-            name: '도쿄',
-            country: '일본',
-            image: 'https://readdy.ai/api/search-image?query=Tokyo%20cityscape%20with%20cherry%20blossoms%20and%20modern%20skyscrapers%2C%20bustling%20Japanese%20metropolitan%20city%20with%20cultural%20landmarks%20and%20vibrant%20street%20life&width=300&height=200&seq=tokyo-plan-3&orientation=landscape',
-        },
-        {
-            name: '파리',
-            country: '프랑스',
-            image: 'https://readdy.ai/api/search-image?query=Paris%20romantic%20cityscape%20with%20Eiffel%20Tower%20and%20Seine%20river%2C%20elegant%20French%20capital%20with%20classic%20architecture%20and%20charming%20atmosphere&width=300&height=200&seq=paris-plan-4&orientation=landscape',
-        },
     ]
 
     const interests = [
@@ -102,25 +108,37 @@ export default function PlannerPage() {
         setLoading(true)
         setError('')
         setGeneratedPlan([])
-
+        setEditingPlan([])
+        setIsEditing(false)
         try {
             const res = await fetch('/api/generate-plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(planData),
             })
-
             const data = await res.json()
-            if (!data.success) {
-                throw new Error(data.error || '일정 생성 실패')
-            }
-
+            if (!data.success) throw new Error(data.error || '일정 생성 실패')
             setGeneratedPlan(data.plan)
+            setEditingPlan(data.plan)
         } catch (err: any) {
             setError(err.message)
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleEditPlan = () => {
+        setEditingPlan(generatedPlan.map((day) => ({ ...day })))
+        setIsEditing(true)
+    }
+
+    const handleSaveEditedPlan = () => {
+        setGeneratedPlan(editingPlan.map((day) => ({ ...day })))
+        setIsEditing(false)
+    }
+
+    const handleEditDayField = (idx: number, field: 'morning' | 'afternoon' | 'evening', value: string) => {
+        setEditingPlan((prev) => prev.map((day, i) => (i === idx ? { ...day, [field]: value } : day)))
     }
 
     const handleSavePlan = async () => {
@@ -139,7 +157,7 @@ export default function PlannerPage() {
             const res = await fetch('/api/plans', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
+                body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
             })
 
             const result = await res.json()
@@ -195,10 +213,10 @@ body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
                             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                                 어디로 떠나고 싶으세요?
                             </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {destinations.map((dest, index) => (
                                     <div
-                                        key={index}
+                                        key={dest.id}
                                         onClick={() => setPlanData((prev) => ({ ...prev, destination: dest.name }))}
                                         className={`relative rounded-xl overflow-hidden cursor-pointer transition-all ${
                                             planData.destination === dest.name
@@ -346,80 +364,16 @@ body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
                     )}
 
                     {currentStep === 4 && (
-                        <div className="text-center">
-                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i className="ri-check-line text-green-600 text-3xl" />
-                            </div>
-                            <h2 className="text-2xl font-bold mb-4">여행 계획이 완성되었습니다!</h2>
-
-                            <button
-                                onClick={handleGeneratePlan}
-                                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition mb-6"
-                            >
-                                맞춤 일정 확인하기
-                            </button>
-
-                            {loading && <p className="text-blue-500">AI가 일정을 생성 중입니다...</p>}
-                            {error && <p className="text-red-500 mt-2">{error}</p>}
-
-                            {!loading && generatedPlan.length > 0 && (
-                                <div className="text-left mt-10">
-                                    <div className="bg-gray-50 p-6 rounded-lg border mb-6">
-                                        <h3 className="text-lg font-semibold mb-4">📋 여행 계획 요약</h3>
-                                        <p>🗺 여행지: {planData.destination}</p>
-                                        <p>
-                                            📆 일정: {planData.dates.start} ~ {planData.dates.end}
-                                        </p>
-                                        <p>👥 인원: {planData.travelers}명</p>
-                                        <p>
-                                            💰 예산:{' '}
-                                            {
-                                                {
-                                                    low: '50만원 이하',
-                                                    medium: '50-100만원',
-                                                    high: '100-200만원',
-                                                    luxury: '200만원 이상',
-                                                }[planData.budget]
-                                            }
-                                        </p>
-                                        <p>
-                                            🎯 관심사:{' '}
-                                            {planData.interests
-                                                .map((id) => interests.find((i) => i.id === id)?.name)
-                                                .join(', ')}
-                                        </p>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <h3 className="text-lg font-semibold mb-2">🗓 맞춤 일정</h3>
-                                        {generatedPlan.map((day, idx) => (
-                                            <div key={idx} className="p-4 bg-white border rounded-lg shadow">
-                                                <h4 className="text-blue-600 font-semibold mb-2">{day.date}</h4>
-                                                <ul className="text-sm">
-                                                    <li>
-                                                        <strong>오전:</strong> {day.morning}
-                                                    </li>
-                                                    <li>
-                                                        <strong>오후:</strong> {day.afternoon}
-                                                    </li>
-                                                    <li>
-                                                        <strong>저녁:</strong> {day.evening}
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="text-center mt-8">
-                                        <button
-                                            onClick={handleSavePlan}
-                                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition"
-                                        >
-                                            여행 계획 저장하기
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                        <TravelPlanEditor
+                            planData={planData}
+                            interests={interests}
+                            loading={loading}
+                            error={error}
+                            generatedPlan={generatedPlan}
+                            setGeneratedPlan={setGeneratedPlan}
+                            handleGeneratePlan={handleGeneratePlan}
+                            handleSavePlan={handleSavePlan}
+                        />
                     )}
                     {/* Navigation Buttons */}
                     <div className="flex justify-between mt-8">

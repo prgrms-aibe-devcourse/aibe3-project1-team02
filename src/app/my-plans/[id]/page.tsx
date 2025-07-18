@@ -1,5 +1,3 @@
-// app/my-plans/[id]/page.tsx
-
 'use client'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -56,7 +54,6 @@ export default function PlanDetailPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
-    // ✨ 헬퍼 함수 추가
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'planning':
@@ -176,6 +173,15 @@ export default function PlanDetailPage() {
                         ) : (
                             <p className="text-gray-500 text-center py-8">생성된 상세 일정이 없습니다.</p>
                         )}
+                    </div>
+
+                    <div className="text-center mt-12">
+                        <Link
+                            href={`/my-plans/${plan.id}/modify`}
+                            className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition text-lg font-semibold"
+                        >
+                            이 계획 수정하기
+                        </Link>
                     </div>
                 </div>
             </main>
