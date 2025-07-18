@@ -17,6 +17,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
     const [selectedImageIndex, setSelectedImageIndex] = useState(0)
     const [destination, setDestination] = useState<any>(null)
     const [reviews, setReviews] = useState<any[]>([])
+    const [packages, setPackages] = useState<any[]>([])
     const router = useRouter()
     const searchParams = useSearchParams()
     const selected = searchParams.get('selected')
@@ -45,6 +46,14 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
       fetchData()
     }, [destinationId])
 
+    useEffect(() => {
+        async function fetchData() {
+          const { data, error } = await supabase.rpc('get_destination_packages', { dest_id: parseInt(destinationId) })
+          setPackages(data)
+        }
+        fetchData()
+      }, [])
+
     console.log(reviews)
 
     console.log(destination)
@@ -66,7 +75,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         { id: 'packages', name: '패키지', icon: 'ri-gift-line' },
     ]
 
-    const packages = [
+    const packagesa = [
         {
             id: 1,
             title: `${destination.name} 자유여행 3박 4일`,
@@ -219,7 +228,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
 
                 {activeTab === 'packages' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {packages.map((pkg) => (
+                        {packages.map((pkg: any) => (
                             <div
                                 key={pkg.id}
                                 className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
@@ -256,7 +265,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                     <div className="mb-6">
                                         <h4 className="font-medium text-gray-900 mb-2">포함 사항</h4>
                                         <ul className="text-sm text-gray-600 space-y-1">
-                                            {pkg.includes.map((item, index) => (
+                                            {pkg.includes.map((item: any, index: any) => (
                                                 <li key={index} className="flex items-center gap-2">
                                                     <div className="w-3 h-3 flex items-center justify-center">
                                                         <i className="ri-check-line text-green-500 text-xs"></i>
