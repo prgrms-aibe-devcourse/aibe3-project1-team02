@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase'
 
 interface DestinationDetailProps {
   destinationId: string;
-}
+}//adasd
 
 export default function DestinationDetail({ destinationId }: DestinationDetailProps) {
     const [activeTab, setActiveTab] = useState('overview')
