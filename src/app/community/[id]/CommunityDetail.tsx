@@ -178,7 +178,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
 
         const {
             data: { user: authUser },
-        } = await supabase.auth.getUser()
+        } = await supabaseBrowser.auth.getUser()
 
         if (!authUser) {
             alert('로그인이 필요합니다.')
