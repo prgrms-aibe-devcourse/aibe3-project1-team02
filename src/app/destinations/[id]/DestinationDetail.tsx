@@ -11,10 +11,12 @@ interface DestinationDetailProps {
     destinationId: string
 }
 
+
 export default function DestinationDetail({ destinationId }: DestinationDetailProps) {
     const [activeTab, setActiveTab] = useState('overview')
     const [selectedImageIndex, setSelectedImageIndex] = useState(0)
     const [destination, setDestination] = useState<any>(null)
+    const [reviews, setReviews] = useState<any[]>([])
     const router = useRouter()
     const searchParams = useSearchParams()
     const selected = searchParams.get('selected')
@@ -33,7 +35,17 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
             setDestination(data?.[0] ?? null)
         }
         fetchData()
+         }, [destinationId])
+
+    useEffect(() => {
+      async function fetchData() {
+        const { data, error } = await supabase.rpc('get_destination_reviews', { dest_id: parseInt(destinationId) })
+        setReviews(data || [])
+      }
+      fetchData()
     }, [destinationId])
+
+    console.log(reviews)
 
     console.log(destination)
 
@@ -79,28 +91,6 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         },
     ]
 
-    const reviews = [
-        {
-            id: 1,
-            author: '여행매니아김씨',
-            rating: 5,
-            date: '2024-01-10',
-            title: '정말 완벽한 여행이었어요!',
-            content: `${destination.name} 여행이 정말 좋았습니다. 특히 현지 가이드분이 친절하시고 숨겨진 맛집들도 많이 알려주셔서 더욱 즐거웠어요. 다음에도 꼭 다시 가고 싶습니다.`,
-            helpful: 23,
-            images: [destination.highlight[0].image],
-        },
-        {
-            id: 2,
-            author: '행복한여행자',
-            rating: 4,
-            date: '2024-01-08',
-            title: '가족여행으로 추천합니다',
-            content: `아이들과 함께 갔는데 정말 좋았어요. 안전하고 깨끗하며 볼거리도 많았습니다. 다만 성수기라 사람이 많아서 조금 아쉬웠지만 전반적으로 만족스러운 여행이었습니다.`,
-            helpful: 18,
-            images: [],
-        },
-    ]
 
     return (
         <div className="min-h-screen bg-white">
@@ -297,7 +287,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                             </button>
                         </div>
 
-                        {reviews.map((review) => {
+                        {reviews.map((review: any) => {
                             const helpful = helpfulCounts[review.id] ?? review.helpful
                             const clicked = helpfulClicked[review.id] ?? false
                             return (
@@ -306,7 +296,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="font-medium text-gray-900">{review.author}</span>
-                                                <div className="flex items-center gap-1">
+                                                  {/* <div className="flex items-center gap-1">
                                                     {[...Array(5)].map((_, i) => (
                                                         <div
                                                             key={i}
@@ -321,16 +311,16 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                                             ></i>
                                                         </div>
                                                     ))}
-                                                </div>
+                                                </div> */}
                                             </div>
                                             <p className="text-sm text-gray-500">{review.date}</p>
                                         </div>
                                     </div>
                                     <h3 className="font-semibold text-gray-900 mb-2">{review.title}</h3>
                                     <p className="text-gray-700 mb-4">{review.content}</p>
-                                    {review.images.length > 0 && (
+                                    {/* {review.images.length > 0 && (
                                         <div className="flex gap-2 mb-4">
-                                            {review.images.map((image, index) => (
+                                            {review.images.map((image: any, index: any) => (
                                                 <img
                                                     key={index}
                                                     src={image}
@@ -339,7 +329,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                                 />
                                             ))}
                                         </div>
-                                    )}
+                                    )} */}
                                     <div className="flex items-center gap-4 text-sm text-gray-500">
                                         <button
                                             className={`flex items-center gap-1 cursor-pointer ${
