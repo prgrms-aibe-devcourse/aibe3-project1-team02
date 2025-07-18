@@ -10,14 +10,15 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
 
     const [user, setUser] = useState<User | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         const getUser = async () => {
             const {
                 data: { user },
             } = await supabaseBrowser.auth.getUser()
-            console.log('Current user on mount:', user)
             setUser(user)
+            setIsLoading(false)
         }
 
         getUser()
@@ -84,7 +85,11 @@ export default function Header() {
                     </nav>
 
                     <div className="hidden md:flex items-center space-x-4">
-                        {user ? (
+                        {isLoading ? (
+                            <div className="relative overflow-hidden bg-gray-300 rounded w-24 h-4">
+                                <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300" />
+                            </div>
+                        ) : user ? (
                             <div className="flex items-center space-x-4">
                                 <span className="text-gray-700">{user.email} 님</span>
                                 <button
