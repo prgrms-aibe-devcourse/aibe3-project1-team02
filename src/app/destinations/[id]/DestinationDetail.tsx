@@ -17,6 +17,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
     const [selectedImageIndex, setSelectedImageIndex] = useState(0)
     const [destination, setDestination] = useState<any>(null)
     const [reviews, setReviews] = useState<any[]>([])
+    const [packages, setPackages] = useState<any[]>([])
     const router = useRouter()
     const searchParams = useSearchParams()
     const selected = searchParams.get('selected')
@@ -45,9 +46,14 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         fetchData()
     }, [destinationId])
 
-    console.log(reviews)
+    useEffect(() => {
+        async function fetchData() {
+          const { data, error } = await supabase.rpc('get_destination_packages', { dest_id: parseInt(destinationId) })
+          setPackages(data)
+        }
+        fetchData()
+      }, [])
 
-    console.log(destination)
 
     if (!destination) {
         return (
@@ -66,30 +72,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         { id: 'packages', name: '패키지', icon: 'ri-gift-line' },
     ]
 
-    const packages = [
-        {
-            id: 1,
-            title: `${destination.name} 자유여행 3박 4일`,
-            price: destination.price,
-            originalPrice: parseInt(destination.price.replace(/[^0-9]/g, '')) + 50000 + '원',
-            discount: '15%',
-            rating: 4.8,
-            reviews: 234,
-            includes: ['왕복항공료', '숙박 3박', '조식 포함', '현지 가이드'],
-            image: destination.highlight[0].image,
-        },
-        {
-            id: 2,
-            title: `${destination.name} 프리미엄 패키지`,
-            price: parseInt(destination.price.replace(/[^0-9]/g, '')) + 180000 + '원부터',
-            originalPrice: parseInt(destination.price.replace(/[^0-9]/g, '')) + 250000 + '원',
-            discount: '20%',
-            rating: 4.9,
-            reviews: 156,
-            includes: ['왕복항공료', '특급호텔 4박', '전 일정 식사', '전용 가이드', '입장료'],
-            image: destination.highlight[1].image,
-        },
-    ]
+
 
     // 패키지 예약 핸들러
     async function handleReservePackage(pkg: any) {
@@ -253,7 +236,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
 
                 {activeTab === 'packages' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {packages.map((pkg) => (
+                        {packages.map((pkg: any) => (
                             <div
                                 key={pkg.id}
                                 className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
@@ -265,12 +248,12 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                         className="w-full h-full object-cover object-top"
                                     />
                                     <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-                                        {pkg.discount} 할인
+                                        {pkg.discount}% 할인
                                     </div>
                                 </div>
                                 <div className="p-6">
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.title}</h3>
-                                    <div className="flex items-center gap-2 mb-3">
+                                    {/* <div className="flex items-center gap-2 mb-3">
                                         <div className="flex items-center gap-1">
                                             <div className="w-4 h-4 flex items-center justify-center">
                                                 <i className="ri-star-fill text-yellow-400 text-sm"></i>
@@ -278,10 +261,10 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                             <span className="text-sm font-medium">{pkg.rating}</span>
                                         </div>
                                         <span className="text-sm text-gray-500">({pkg.reviews}개 후기)</span>
-                                    </div>
+                                    </div> */}
                                     <div className="mb-4">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-2xl font-bold text-blue-600">{pkg.price}</span>
+                                            <span className="text-2xl font-bold text-blue-600">{pkg.price.toLocaleString()}원</span>
                                             <span className="text-lg text-gray-400 line-through">
                                                 {pkg.originalPrice}
                                             </span>
@@ -290,7 +273,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                     <div className="mb-6">
                                         <h4 className="font-medium text-gray-900 mb-2">포함 사항</h4>
                                         <ul className="text-sm text-gray-600 space-y-1">
-                                            {pkg.includes.map((item, index) => (
+                                            {pkg.includes.map((item: any, index: any) => (
                                                 <li key={index} className="flex items-center gap-2">
                                                     <div className="w-3 h-3 flex items-center justify-center">
                                                         <i className="ri-check-line text-green-500 text-xs"></i>
