@@ -6,11 +6,11 @@ import Footer from '@/components/Footer'
 import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { supabaseBrowser } from '@/lib/supabase-browser'
 
 interface DestinationDetailProps {
     destinationId: string
 }
-
 
 export default function DestinationDetail({ destinationId }: DestinationDetailProps) {
     const [activeTab, setActiveTab] = useState('overview')
@@ -36,14 +36,14 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
             setDestination(data?.[0] ?? null)
         }
         fetchData()
-         }, [destinationId])
+    }, [destinationId])
 
     useEffect(() => {
-      async function fetchData() {
-        const { data, error } = await supabase.rpc('get_destination_reviews', { dest_id: parseInt(destinationId) })
-        setReviews(data || [])
-      }
-      fetchData()
+        async function fetchData() {
+            const { data, error } = await supabase.rpc('get_destination_reviews', { dest_id: parseInt(destinationId) })
+            setReviews(data || [])
+        }
+        fetchData()
     }, [destinationId])
 
     useEffect(() => {
@@ -74,6 +74,40 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
 
 
 
+    // 패키지 예약 핸들러
+    async function handleReservePackage(pkg: any) {
+        const {
+            data: { user },
+        } = await supabaseBrowser.auth.getUser()
+        if (!user) {
+            alert('로그인이 필요합니다.')
+            return
+        }
+
+        const planData = {
+            user_id: user.id,
+            title: pkg.title,
+            destination: destination.name,
+            image: pkg.image,
+            package_id: pkg.id,
+            status: 'confirmed', // 확정됨 탭에 들어가게
+            plan_details: {
+                original_price: pkg.originalPrice,
+                price: pkg.price,
+                discount: pkg.discount,
+                includes: pkg.includes,
+                // 필요하면 더 추가
+            },
+        }
+
+        const { error } = await supabase.from('travel_plan').insert([planData])
+        if (error) {
+            alert('예약에 실패했습니다: ' + error.message)
+            return
+        }
+        alert('예약이 완료되었습니다!')
+        router.push('/my-plans')
+    }
 
     return (
         <div className="min-h-screen bg-white">
@@ -249,7 +283,10 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                             ))}
                                         </ul>
                                     </div>
-                                    <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium">
+                                    <button
+                                        onClick={() => handleReservePackage(pkg)}
+                                        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium"
+                                    >
                                         예약하기
                                     </button>
                                 </div>
@@ -279,7 +316,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="font-medium text-gray-900">{review.author}</span>
-                                                  {/* <div className="flex items-center gap-1">
+                                                {/* <div className="flex items-center gap-1">
                                                     {[...Array(5)].map((_, i) => (
                                                         <div
                                                             key={i}
