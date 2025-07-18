@@ -142,7 +142,9 @@ export default function DestinationsPage() {
                                         <div>
                                             <p className="text-lg font-bold text-blue-600">
                                                 {destination.price
-                                                    ? `${destination.price.toLocaleString()}원부터`
+                                                    ? `${Number(
+                                                          String(destination.price).replace(/[^0-9]/g, ''),
+                                                      ).toLocaleString()}원`
                                                     : '가격정보 없음'}
                                             </p>
                                             <p className="text-xs text-gray-500">

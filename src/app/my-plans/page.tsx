@@ -151,7 +151,6 @@ export default function MyPlansPage() {
                                 console.log('plan:', plan)
                                 console.log('plan_details:', plan.plan_details)
                             }
-                            // 확정됨(confirmed) 상태면 패키지 카드 UI로 렌더링
                             if (plan.status === 'confirmed' && plan.planDetails) {
                                 const details = plan.planDetails || {}
                                 return (
@@ -167,7 +166,8 @@ export default function MyPlansPage() {
                                             />
                                             {details.discount && (
                                                 <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-                                                    {details.discount} 할인
+                                                    {details.discount}
+                                                    {String(details.discount).includes('%') ? '' : '%'} 할인
                                                 </div>
                                             )}
                                         </div>
@@ -175,7 +175,11 @@ export default function MyPlansPage() {
                                             <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.title}</h3>
                                             <div className="mb-4">
                                                 <span className="text-2xl font-bold text-blue-600">
-                                                    {details.price}
+                                                    {details.price
+                                                        ? `${Number(
+                                                              String(details.price).replace(/[^0-9]/g, ''),
+                                                          ).toLocaleString()}원`
+                                                        : ''}
                                                 </span>
                                                 {details.original_price && (
                                                     <span className="text-lg text-gray-400 line-through ml-2">
