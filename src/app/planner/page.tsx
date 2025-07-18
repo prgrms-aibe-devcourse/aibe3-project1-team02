@@ -1,14 +1,15 @@
 // app/planner/page.tsx
 
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 
 export default function PlannerPage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [generatedPlan, setGeneratedPlan] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -29,6 +30,17 @@ export default function PlannerPage() {
         interests: [],
         progress: 0,
     })
+
+    // URL 파라미터에서 destination 값을 읽어와서 초기 상태 설정
+    useEffect(() => {
+        const destinationFromUrl = searchParams.get('destination')
+        if (destinationFromUrl) {
+            setPlanData((prev) => ({
+                ...prev,
+                destination: decodeURIComponent(destinationFromUrl),
+            }))
+        }
+    }, [searchParams])
 
     const steps = [
         { id: 1, title: '여행지 선택', icon: 'ri-map-pin-line' },
@@ -139,7 +151,7 @@ export default function PlannerPage() {
             const res = await fetch('/api/plans', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
+                body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
             })
 
             const result = await res.json()
