@@ -1,18 +1,21 @@
 // app/planner/page.tsx
 
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
+import { supabase } from '@/lib/supabase'
 
 export default function PlannerPage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [generatedPlan, setGeneratedPlan] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [currentStep, setCurrentStep] = useState(1)
+    const [destinations, setDestinations] = useState<any[]>([])
 
     const [planData, setPlanData] = useState<{
         destination: string
@@ -30,34 +33,35 @@ export default function PlannerPage() {
         progress: 0,
     })
 
+    // 여행지 데이터 가져오기
+    useEffect(() => {
+        async function fetchDestinations() {
+            const { data, error } = await supabase.rpc('get_destination_overview')
+            if (error) {
+                console.error('Error fetching destinations:', error)
+                return
+            }
+            setDestinations(data || [])
+        }
+        fetchDestinations()
+    }, [])
+
+    // URL 파라미터에서 destination 값을 읽어와서 초기 상태 설정
+    useEffect(() => {
+        const destinationFromUrl = searchParams.get('destination')
+        if (destinationFromUrl) {
+            setPlanData((prev) => ({
+                ...prev,
+                destination: decodeURIComponent(destinationFromUrl),
+            }))
+        }
+    }, [searchParams])
+
     const steps = [
         { id: 1, title: '여행지 선택', icon: 'ri-map-pin-line' },
         { id: 2, title: '일정 설정', icon: 'ri-calendar-line' },
         { id: 3, title: '취향 선택', icon: 'ri-heart-line' },
         { id: 4, title: '완성', icon: 'ri-check-line' },
-    ]
-
-    const destinations = [
-        {
-            name: '제주도',
-            country: '대한민국',
-            image: 'https://readdy.ai/api/search-image?query=Beautiful%20Jeju%20Island%20with%20Hallasan%20mountain%20and%20emerald%20sea%2C%20peaceful%20Korean%20island%20landscape%20with%20traditional%20stone%20walls%20and%20natural%20beauty&width=300&height=200&seq=jeju-plan-1&orientation=landscape',
-        },
-        {
-            name: '부산',
-            country: '대한민국',
-            image: 'https://readdy.ai/api/search-image?query=Busan%20coastal%20city%20with%20colorful%20Gamcheon%20village%20and%20beautiful%20beaches%2C%20vibrant%20Korean%20seaside%20destination%20with%20modern%20and%20traditional%20elements&width=300&height=200&seq=busan-plan-2&orientation=landscape',
-        },
-        {
-            name: '도쿄',
-            country: '일본',
-            image: 'https://readdy.ai/api/search-image?query=Tokyo%20cityscape%20with%20cherry%20blossoms%20and%20modern%20skyscrapers%2C%20bustling%20Japanese%20metropolitan%20city%20with%20cultural%20landmarks%20and%20vibrant%20street%20life&width=300&height=200&seq=tokyo-plan-3&orientation=landscape',
-        },
-        {
-            name: '파리',
-            country: '프랑스',
-            image: 'https://readdy.ai/api/search-image?query=Paris%20romantic%20cityscape%20with%20Eiffel%20Tower%20and%20Seine%20river%2C%20elegant%20French%20capital%20with%20classic%20architecture%20and%20charming%20atmosphere&width=300&height=200&seq=paris-plan-4&orientation=landscape',
-        },
     ]
 
     const interests = [
@@ -139,7 +143,7 @@ export default function PlannerPage() {
             const res = await fetch('/api/plans', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
+                body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
             })
 
             const result = await res.json()
@@ -195,10 +199,10 @@ body: JSON.stringify({ ...planToSave, planDetails: generatedPlan }),
                             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                                 어디로 떠나고 싶으세요?
                             </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {destinations.map((dest, index) => (
                                     <div
-                                        key={index}
+                                        key={dest.id}
                                         onClick={() => setPlanData((prev) => ({ ...prev, destination: dest.name }))}
                                         className={`relative rounded-xl overflow-hidden cursor-pointer transition-all ${
                                             planData.destination === dest.name
