@@ -21,30 +21,48 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
     const [profileImage, setProfileImage] = useState<string | null>(null)
     const [currentUserId, setCurrentUserId] = useState<number | null>(null)
 
+    const fetchUserData = async () => {
+        const {
+            data: { user },
+            error: authError,
+        } = await supabase.auth.getUser()
+
+        if (authError || !user) return
+
+        const { data: userData, error } = await supabase
+            .from('user')
+            .select('profile_image, id')
+            .eq('auth_id', user.id)
+            .single()
+
+        if (!error && userData?.profile_image) {
+            setProfileImage(userData.profile_image)
+        }
+        setCurrentUserId(userData?.id ?? null)
+    }
+
     const fetchData = async () => {
         let { data: post, error } = await supabase
             .from('review')
             .select(
-                `
-        *,
-        user: user (
-          profile_image
-        )
-      `,
+                `*,
+            user: user (
+            profile_image
+        )`,
             )
             .eq('id', postId)
             .single()
-        setPost(post)
 
         if (error) {
             console.error('Error fetching posts:', error)
         }
+        setPost(post)
 
         let { data: comments, error: commentsError } = await supabase
             .from('review_comments')
             .select(
                 `*,
-          user: user (
+            user: user (
             username,
             profile_image
         )`,
@@ -68,30 +86,35 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         }
     }
 
-    const fetchUserData = async () => {
-        const {
-            data: { user },
-            error: authError,
-        } = await supabase.auth.getUser()
+    const fetchLikes = async () => {
+        if (!currentUserId || !post) return
 
-        if (authError || !user) return
+        const { data: likes, error } = await supabase
+            .from('likes')
+            .select('*')
+            .eq('user_id', currentUserId)
+            .eq('target_id', post.id)
+            .eq('type', 'review')
+            .maybeSingle()
 
-        const { data: userData, error } = await supabase
-            .from('user')
-            .select('profile_image, id')
-            .eq('auth_id', user.id)
-            .single()
-
-        if (!error && userData?.profile_image) {
-            setProfileImage(userData.profile_image)
+        if (error) {
+            console.error('Error fetching likes:', error)
+        } else {
+            setIsLiked(likes ? true : false)
         }
-        setCurrentUserId(userData?.id ?? null)
     }
 
     useEffect(() => {
-        fetchData()
         fetchUserData()
+        fetchData()
     }, [])
+
+    //post와 currentUserId가 세팅된 이후에만 fetchLikes()가 실행
+    useEffect(() => {
+        if (post?.id && currentUserId) {
+            fetchLikes()
+        }
+    }, [post, currentUserId])
 
     if (!post || !comments) {
         return <div className="text-center py-10">로딩 중...</div>
@@ -188,17 +211,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             return
         }
 
-        // const { data: userData, error: userError } = await supabase
-        //     .from('user')
-        //     .select('id')
-        //     .eq('auth_id', authUser.id)
-        //     .single()
-
-        // if (userError || !userData) {
-        //     console.error('유저 테이블 조회 실패:', userError)
-        //     return
-        // }
-
         const { data, error } = await supabase
             .from('review_comments')
             .insert({
@@ -257,20 +269,49 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
     }
 
     const handleLike = async () => {
+        if (!currentUserId) {
+            alert('로그인이 필요합니다.')
+            return
+        }
+
+        if (isLiked) {
+            const { error } = await supabase
+                .from('likes')
+                .delete()
+                .eq('user_id', currentUserId)
+                .eq('target_id', post.id)
+                .eq('type', 'review')
+            if (error) {
+                console.error('좋아요 취소 실패:', error)
+                return
+            }
+        } else {
+            const { error } = await supabase.from('likes').insert({
+                user_id: currentUserId,
+                target_id: post.id,
+                type: 'review',
+            })
+            if (error) {
+                console.error('좋아요 추가 실패:', error)
+                return
+            }
+        }
+
         const newLiked = !isLiked
-        setIsLiked(newLiked) // UI 반영 먼저
 
         const updatedLikes = post.likes + (newLiked ? 1 : -1)
 
-        const { error } = await supabase.from('review').update({ likes: updatedLikes }).eq('id', post.id)
+        const { error: updateerror } = await supabase.from('review').update({ likes: updatedLikes }).eq('id', post.id)
 
-        if (error) {
-            console.error('좋아요 업데이트 실패:', error)
+        if (updateerror) {
+            console.error('좋아요 업데이트 실패:', updateerror)
             // 실패 시 UI 롤백도 가능
             setIsLiked(!newLiked)
         } else {
             setPost({ ...post, likes: updatedLikes }) // UI에 반영
+            setIsLiked(newLiked)
         }
+        fetchLikes()
     }
 
     // const handleCommentLike = async (comment: Comment) => {
@@ -471,20 +512,20 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                 <span className="text-sm text-gray-500">{comment.created_at}</span>
                                             </div>
                                             <p className="text-gray-700 text-sm mb-2">{comment.body}</p>
-                                            <div className="flex items-center gap-4">
-                                                {/* <button
-                                                    onClick={() => handleCommentLike(comment)}
+                                            {/* <div className="flex items-center gap-4">
+                                                <button
+                                                    onClick={() => handleLike('comment')}
                                                     className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer"
                                                 >
                                                     <div className="w-3 h-3 flex items-center justify-center">
                                                         <i className="ri-thumb-up-line text-xs"></i>
                                                     </div>
                                                     {comment.likes}
-                                                </button> */}
+                                                </button>
                                                 <button className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
                                                     답글
                                                 </button>
-                                            </div>
+                                            </div> */}
 
                                             {/* {comment.replies && comment.replies.length > 0 && (
                                                 <div className="mt-4 space-y-3">
