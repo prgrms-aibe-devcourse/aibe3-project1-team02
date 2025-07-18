@@ -145,7 +145,7 @@ export default function MyPlansPage() {
                                 <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full flex flex-col">
                                     <div className="relative">
                                         <img
-                                            src={getDestinationImage(plan.destination, plan.image)}
+                                            src={plan.image}
                                             alt={plan.title}
                                             className="w-full h-48 object-cover object-top"
                                         />
