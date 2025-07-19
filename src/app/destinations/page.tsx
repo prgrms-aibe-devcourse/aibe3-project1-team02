@@ -5,9 +5,21 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
 
+interface Destination {
+    id: number
+    name: string
+    country: string
+    category: string
+    image: string
+    rating: number
+    reviews: number
+    tags: string[]
+    price?: number | null
+}
+
 export default function DestinationsPage() {
     const [selectedCategory, setSelectedCategory] = useState('all')
-    const [destinations, setDestinations] = useState([])
+    const [destinations, setDestinations] = useState<Destination[]>([])
     const [searchQuery, setSearchQuery] = useState('')
 
     const categories = [
@@ -22,23 +34,30 @@ export default function DestinationsPage() {
     useEffect(() => {
         async function fetchData() {
             const { data: destinations } = await supabase.rpc('get_destination_overview')
-            const destinationsWithPackage = await Promise.all(
-                destinations.map(async (dest) => {
+            const destinationsWithPackageAndReviews = await Promise.all(
+                destinations.map(async (dest: any) => {
+                    // 패키지 정보 가져오기
                     const { data: packages } = await supabase.rpc('get_destination_packages', { dest_id: dest.id })
-                    const freePackage = packages?.find((pkg) => pkg.title.includes('자유여행 3박 4일'))
+                    const freePackage = packages?.find((pkg: any) => pkg.title.includes('자유여행 3박 4일'))
+
+                    // 실제 후기 개수 가져오기
+                    const { data: reviews } = await supabase.rpc('get_destination_reviews', { dest_id: dest.id })
+                    const actualReviewCount = reviews ? reviews.length : 0
+
                     return {
                         ...dest,
                         price: freePackage ? freePackage.price : null, // price를 덮어씀
+                        reviews: actualReviewCount, // 실제 후기 개수로 덮어씀
                     }
                 }),
             )
-            setDestinations(destinationsWithPackage)
+            setDestinations(destinationsWithPackageAndReviews)
         }
         fetchData()
     }, [])
     console.log(destinations)
 
-    const filteredDestinations = destinations.filter((dest: any) => {
+    const filteredDestinations = destinations.filter((dest: Destination) => {
         const matchesCategory = selectedCategory === 'all' || dest.category === selectedCategory
         const matchesSearch =
             dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -97,7 +116,7 @@ export default function DestinationsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredDestinations.map((destination: any) => (
+                    {filteredDestinations.map((destination: Destination) => (
                         <Link key={destination.id} href={`/destinations/${destination.id}`}>
                             <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
                                 <div className="relative h-48">
@@ -128,7 +147,7 @@ export default function DestinationsPage() {
                                     </div>
 
                                     <div className="flex flex-wrap gap-2 mb-4">
-                                        {destination.tags.map((tag: any, index: any) => (
+                                        {destination.tags.map((tag: string, index: number) => (
                                             <span
                                                 key={index}
                                                 className="bg-blue-50 text-blue-600 px-2 py-1 rounded-full text-xs"
