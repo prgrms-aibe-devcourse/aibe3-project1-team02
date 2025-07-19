@@ -22,8 +22,9 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
     const searchParams = useSearchParams()
     const selected = searchParams.get('selected')
 
-    const [helpfulCounts, setHelpfulCounts] = useState<{ [id: number]: number }>({})
-    const [helpfulClicked, setHelpfulClicked] = useState<{ [id: number]: boolean }>({})
+    const [likedReviews, setLikedReviews] = useState<{ [id: number]: boolean }>({})
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null)
+    const [isProcessing, setIsProcessing] = useState<{ [id: number]: boolean }>({})
 
     console.log(parseInt(destinationId))
     useEffect(() => {
@@ -48,12 +49,169 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
 
     useEffect(() => {
         async function fetchData() {
-          const { data, error } = await supabase.rpc('get_destination_packages', { dest_id: parseInt(destinationId) })
-          setPackages(data)
+            const { data, error } = await supabase.rpc('get_destination_packages', { dest_id: parseInt(destinationId) })
+            setPackages(data)
         }
         fetchData()
-      }, [])
+    }, [])
 
+    // 현재 사용자 정보 가져오기
+    useEffect(() => {
+        async function fetchUserData() {
+            const {
+                data: { user },
+            } = await supabaseBrowser.auth.getUser()
+            if (user) {
+                const { data: userData } = await supabase.from('user').select('id').eq('auth_id', user.id).single()
+                setCurrentUserId(userData?.id ?? null)
+            }
+        }
+        fetchUserData()
+    }, [])
+
+    // 좋아요 상태 가져오기
+    useEffect(() => {
+        async function fetchLikes() {
+            if (!currentUserId || reviews.length === 0) return
+
+            // 좋아요 상태와 함께 실제 좋아요 수도 가져오기
+            const { data: likes } = await supabase
+                .from('likes')
+                .select('target_id')
+                .eq('user_id', currentUserId)
+                .eq('type', 'review')
+                .in(
+                    'target_id',
+                    reviews.map((review) => review.id),
+                )
+
+            if (likes) {
+                const likedMap: { [id: number]: boolean } = {}
+                likes.forEach((like) => {
+                    likedMap[like.target_id] = true
+                })
+                setLikedReviews(likedMap)
+            }
+
+            // 각 리뷰의 실제 좋아요 수와 댓글 수를 가져와서 업데이트
+            const { data: reviewData } = await supabase
+                .from('review')
+                .select('id, likes, comments')
+                .in(
+                    'id',
+                    reviews.map((review) => review.id),
+                )
+
+            if (reviewData) {
+                setReviews((prev) =>
+                    prev.map((review) => {
+                        const updatedReview = reviewData.find((r) => r.id === review.id)
+                        return updatedReview
+                            ? {
+                                  ...review,
+                                  likes: updatedReview.likes || 0,
+                                  comments: updatedReview.comments || 0,
+                              }
+                            : review
+                    }),
+                )
+            }
+        }
+        fetchLikes()
+    }, [currentUserId, reviews])
+
+    // 좋아요 핸들러
+    async function handleLike(reviewId: number) {
+        if (!currentUserId) {
+            alert('로그인이 필요합니다.')
+            return
+        }
+
+        // 이미 처리 중인 경우 중복 클릭 방지
+        if (isProcessing[reviewId]) {
+            return
+        }
+
+        const isLiked = likedReviews[reviewId] || false
+        const newLiked = !isLiked
+        const currentReview = reviews.find((r) => r.id === reviewId)
+        const currentLikes = currentReview?.likes || 0
+
+        // 처리 중 상태 설정
+        setIsProcessing((prev) => ({ ...prev, [reviewId]: true }))
+
+        try {
+            // 데이터베이스 업데이트 먼저 수행
+            if (newLiked) {
+                // 좋아요 추가
+                const { error } = await supabase.from('likes').insert({
+                    user_id: currentUserId,
+                    target_id: reviewId,
+                    type: 'review',
+                })
+
+                if (error) {
+                    console.error('좋아요 추가 실패:', error)
+                    return
+                }
+
+                // 리뷰의 좋아요 수 증가
+                const { error: updateError } = await supabase
+                    .from('review')
+                    .update({ likes: currentLikes + 1 })
+                    .eq('id', reviewId)
+
+                if (updateError) {
+                    console.error('좋아요 수 업데이트 실패:', updateError)
+                    return
+                }
+            } else {
+                // 좋아요 제거
+                const { error } = await supabase
+                    .from('likes')
+                    .delete()
+                    .eq('user_id', currentUserId)
+                    .eq('target_id', reviewId)
+                    .eq('type', 'review')
+
+                if (error) {
+                    console.error('좋아요 제거 실패:', error)
+                    return
+                }
+
+                // 리뷰의 좋아요 수 감소
+                const { error: updateError } = await supabase
+                    .from('review')
+                    .update({ likes: Math.max(0, currentLikes - 1) })
+                    .eq('id', reviewId)
+
+                if (updateError) {
+                    console.error('좋아요 수 업데이트 실패:', updateError)
+                    return
+                }
+            }
+
+            // 데이터베이스 업데이트 성공 후 UI 업데이트
+            setLikedReviews((prev) => ({
+                ...prev,
+                [reviewId]: newLiked,
+            }))
+
+            // 리뷰 목록 업데이트
+            setReviews((prev) =>
+                prev.map((review) =>
+                    review.id === reviewId
+                        ? { ...review, likes: newLiked ? currentLikes + 1 : Math.max(0, currentLikes - 1) }
+                        : review,
+                ),
+            )
+        } catch (error) {
+            console.error('좋아요 처리 중 오류:', error)
+        } finally {
+            // 처리 완료 후 상태 해제
+            setIsProcessing((prev) => ({ ...prev, [reviewId]: false }))
+        }
+    }
 
     if (!destination) {
         return (
@@ -71,8 +229,6 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         { id: 'reviews', name: '후기', icon: 'ri-star-line' },
         { id: 'packages', name: '패키지', icon: 'ri-gift-line' },
     ]
-
-
 
     // 패키지 예약 핸들러
     async function handleReservePackage(pkg: any) {
@@ -114,7 +270,20 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
             <Header />
 
             <div className="relative h-96 overflow-hidden">
-                <img src={destination.image} alt={destination.name} className="w-full h-full object-cover object-top" />
+                <div className="relative w-full h-full">
+                    {destination.highlight.slice(0, 4).map((highlight: any, index: any) => (
+                        <img
+                            key={index}
+                            src={highlight.image || destination.image}
+                            alt={highlight.title || destination.name}
+                            className={`absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 ease-in-out ${
+                                selectedImageIndex === index
+                                    ? 'translate-x-0 opacity-100'
+                                    : 'translate-x-full opacity-0'
+                            }`}
+                        />
+                    ))}
+                </div>
                 <div className="absolute inset-0 bg-black/30">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-end pb-8">
                         <div className="text-white">
@@ -133,7 +302,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                         <i className="ri-star-fill text-yellow-400"></i>
                                     </div>
                                     <span className="font-medium">{destination.rating}</span>
-                                    <span className="text-white/70">({destination.reviews}개 후기)</span>
+                                    <span className="text-white/70">({reviews.length}개 후기)</span>
                                 </div>
                                 <div className="text-2xl font-bold">{destination.price}</div>
                             </div>
@@ -142,7 +311,7 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                 </div>
 
                 <div className="absolute right-4 top-4 flex gap-2">
-                    {destination.highlight.map((highlight: any, index: any) => (
+                    {destination.highlight.slice(0, 4).map((highlight: any, index: any) => (
                         <button
                             key={index}
                             onClick={() => setSelectedImageIndex(index)}
@@ -264,7 +433,9 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                                     </div> */}
                                     <div className="mb-4">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-2xl font-bold text-blue-600">{pkg.price.toLocaleString()}원</span>
+                                            <span className="text-2xl font-bold text-blue-600">
+                                                {pkg.price.toLocaleString()}원
+                                            </span>
                                             <span className="text-lg text-gray-400 line-through">
                                                 {pkg.originalPrice}
                                             </span>
@@ -301,83 +472,51 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
                             <h2 className="text-2xl font-bold text-gray-900">여행 후기</h2>
                             <button
                                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap"
-                                onClick={() => router.push('/community')}
+                                onClick={() => router.push('/community/new')}
                             >
                                 후기 작성
                             </button>
                         </div>
 
                         {reviews.map((review: any) => {
-                            const helpful = helpfulCounts[review.id] ?? review.helpful
-                            const clicked = helpfulClicked[review.id] ?? false
+                            const isLiked = likedReviews[review.id] || false
                             return (
                                 <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-6">
                                     <div className="flex items-start justify-between mb-4">
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="font-medium text-gray-900">{review.author}</span>
-                                                {/* <div className="flex items-center gap-1">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <div
-                                                            key={i}
-                                                            className="w-4 h-4 flex items-center justify-center"
-                                                        >
-                                                            <i
-                                                                className={`ri-star-fill text-sm ${
-                                                                    i < review.rating
-                                                                        ? 'text-yellow-400'
-                                                                        : 'text-gray-300'
-                                                                }`}
-                                                            ></i>
-                                                        </div>
-                                                    ))}
-                                                </div> */}
                                             </div>
                                             <p className="text-sm text-gray-500">{review.date}</p>
                                         </div>
                                     </div>
                                     <h3 className="font-semibold text-gray-900 mb-2">{review.title}</h3>
                                     <p className="text-gray-700 mb-4">{review.content}</p>
-                                    {/* {review.images.length > 0 && (
-                                        <div className="flex gap-2 mb-4">
-                                            {review.images.map((image: any, index: any) => (
-                                                <img
-                                                    key={index}
-                                                    src={image}
-                                                    alt="Review"
-                                                    className="w-20 h-20 object-cover object-top rounded-lg"
-                                                />
-                                            ))}
-                                        </div>
-                                    )} */}
                                     <div className="flex items-center gap-4 text-sm text-gray-500">
                                         <button
-                                            className={`flex items-center gap-1 cursor-pointer ${
-                                                clicked ? 'text-blue-600 font-bold' : 'hover:text-blue-600'
-                                            }`}
-                                            onClick={() => {
-                                                setHelpfulCounts((prev) => ({
-                                                    ...prev,
-                                                    [review.id]: clicked
-                                                        ? (prev[review.id] ?? review.helpful) - 1
-                                                        : (prev[review.id] ?? review.helpful) + 1,
-                                                }))
-                                                setHelpfulClicked((prev) => ({
-                                                    ...prev,
-                                                    [review.id]: !clicked,
-                                                }))
-                                            }}
+                                            className={`flex items-center gap-1 cursor-pointer transition-colors ${
+                                                isLiked ? 'text-red-600 font-bold' : 'text-gray-500 hover:text-red-600'
+                                            } ${isProcessing[review.id] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            onClick={() => handleLike(review.id)}
+                                            disabled={isProcessing[review.id]}
                                         >
                                             <div className="w-4 h-4 flex items-center justify-center">
-                                                <i className="ri-thumb-up-line text-xs"></i>
+                                                {isProcessing[review.id] ? (
+                                                    <i className="ri-loader-4-line text-xs animate-spin"></i>
+                                                ) : (
+                                                    <i className={`ri-heart-${isLiked ? 'fill' : 'line'} text-xs`}></i>
+                                                )}
                                             </div>
-                                            도움됨 {helpful}
+                                            좋아요 {review.likes || 0}
                                         </button>
-                                        <button className="flex items-center gap-1 hover:text-blue-600 cursor-pointer">
+                                        <button
+                                            className="flex items-center gap-1 hover:text-blue-600 cursor-pointer"
+                                            onClick={() => router.push(`/community/${review.id}`)}
+                                        >
                                             <div className="w-4 h-4 flex items-center justify-center">
                                                 <i className="ri-chat-3-line text-xs"></i>
                                             </div>
-                                            댓글
+                                            댓글 {review.comments || 0}
                                         </button>
                                     </div>
                                 </div>
