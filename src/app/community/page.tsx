@@ -14,8 +14,8 @@ export default function CommunityPage() {
     const [searchQuery, setSearchQuery] = useState('')
 
     const [posts, setPosts] = useState<Review[]>([])
-    const router = useRouter()
     const [currentUserId, setCurrentUserId] = useState<number | null>(null)
+    const router = useRouter()
 
     const tabs = [
         { id: 'all', name: '전체', icon: 'ri-global-line' },

@@ -201,7 +201,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         }
 
         // fetchComment를 따로 분리시켜야 더 좋을 듯 합니다.
-        fetchData()
 
         const { error: updateError } = await supabase
             .from('review')
@@ -209,6 +208,10 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                 comments: post.comments + 1,
             })
             .eq('id', post.id)
+
+        fetchData()
+
+        console.log('댓글 수 업데이트:', post.comments + 1)
 
         if (updateError) {
             console.error('댓글 수 업데이트 실패:', updateError)
@@ -225,6 +228,13 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
     }
 
     const handleDelete = async (commentId: number) => {
+        const { count, error } = await supabase
+            .from('review_comments')
+            .select('*', { count: 'exact', head: true }) // head: true는 데이터를 가져오지 않고 카운트만
+            .eq('parent_id', commentId)
+
+        console.log('대댓글 개수:', count || 0)
+
         const { error: childCommentError } = await supabase.from('review_comments').delete().eq('parent_id', commentId)
 
         if (childCommentError) {
@@ -244,7 +254,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         const { error: updateError } = await supabase
             .from('review')
             .update({
-                comments: post.comments - 1,
+                comments: post.comments - 1 - (count || 0), // 댓글 수에서 삭제된 댓글과 대댓글 수를 뺌
             })
             .eq('id', post.id)
 
