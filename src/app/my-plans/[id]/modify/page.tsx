@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import MyPlanEditor from '@/components/MyPlanEditor'
 
 interface DayPlan {
     date: string
@@ -75,6 +76,16 @@ export default function ModifyPlanPage() {
             ...prevPlan!,
             [name]: newValue,
         }))
+    }
+
+    const handlePlanDetailsChange = (newPlanDetails: DayPlan[]) => {
+        setPlan((prevPlan) => {
+            if (!prevPlan) return null
+            return {
+                ...prevPlan,
+                plan_details: newPlanDetails,
+            }
+        })
     }
 
     const handleRegeneratePlan = async () => {
@@ -258,24 +269,11 @@ export default function ModifyPlanPage() {
                             <p className="text-center text-blue-500">새로운 일정을 생성하고 있습니다...</p>
                         )}
                         {!isGenerating && plan.plan_details && plan.plan_details.length > 0 ? (
-                            <div className="space-y-6">
-                                {plan.plan_details.map((day, index) => (
-                                    <div key={index} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-                                        <h3 className="text-lg font-bold text-blue-600 mb-4">{day.date}</h3>
-                                        <ul className="space-y-2 text-gray-600">
-                                            <li>
-                                                <strong>오전:</strong> {day.morning}
-                                            </li>
-                                            <li>
-                                                <strong>오후:</strong> {day.afternoon}
-                                            </li>
-                                            <li>
-                                                <strong>저녁:</strong> {day.evening}
-                                            </li>
-                                        </ul>
-                                    </div>
-                                ))}
-                            </div>
+                            <MyPlanEditor
+                                loading={isGenerating}
+                                generatedPlan={plan.plan_details}
+                                setGeneratedPlan={handlePlanDetailsChange}
+                            />
                         ) : (
                             !isGenerating && (
                                 <p className="text-gray-500 text-center py-8">생성된 상세 일정이 없습니다.</p>
