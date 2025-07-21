@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
     // --- 3. 데이터베이스에 저장할 최종 데이터 구성 ---
     const dataToInsert = {
-        title: `${raw.destination} 여행 계획`,
+        title: raw.title || `${raw.destination} 여행 계획`,
         destination_id: destinationId, // 텍스트 이름 대신 ID를 저장합니다.
         start_date: raw.dates?.start || '',
         end_date: raw.dates?.end || '',
