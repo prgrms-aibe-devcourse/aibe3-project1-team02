@@ -45,7 +45,7 @@ export default function CommunityPage() {
         } = await supabaseBrowser.auth.getUser()
 
         if (!user) {
-            alert('로그인이 필요합니다.')
+            router.push('/login')
             return
         }
 
