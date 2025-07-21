@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { motion } from 'framer-motion'
 
 export default function HeroSection() {
     const [searchQuery, setSearchQuery] = useState('')
@@ -46,17 +47,34 @@ export default function HeroSection() {
             <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="w-full">
                     <div className="max-w-2xl">
-                        <p className="text-lg md:text-2xl text-white/70 mb-2 font-semibold tracking-wide">
+                        <motion.p
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                            className="text-lg md:text-2xl text-white/70 mb-2 font-semibold tracking-wide"
+                        >
                             Trip And Travel
-                        </p>
-                        <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                        </motion.p>
+
+                        <motion.h1
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.5 }}
+                            className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
+                        >
                             완벽한 여행을
                             <br />
                             계획해보세요
-                        </h1>
-                        <p className="text-xl text-white/90 mb-8">
+                        </motion.h1>
+
+                        <motion.p
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.8 }}
+                            className="text-xl text-white/90 mb-8"
+                        >
                             AI가 추천하는 맞춤형 여행지와 일정으로 특별한 추억을 만들어보세요
-                        </p>
+                        </motion.p>
 
                         <form className="bg-white rounded-xl p-6 shadow-lg" onSubmit={handleSearch}>
                             <div className="flex flex-col sm:flex-row gap-3">

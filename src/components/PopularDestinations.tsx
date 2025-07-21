@@ -87,7 +87,7 @@ export default function Destination() {
                     {destinations.map((destination) => (
                         <div
                             key={destination.id}
-                            className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                            className="bg-white rounded-xl shadow-sm hover:shadow-lg transform hover:scale-105 transition duration-300 ease-in-out cursor-pointer"
                         >
                             <div className="relative">
                                 <img
