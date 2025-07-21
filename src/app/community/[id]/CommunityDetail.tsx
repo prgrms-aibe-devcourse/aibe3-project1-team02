@@ -14,7 +14,6 @@ interface CommunityDetailProps {
 
 export default function CommunityDetail({ postId }: CommunityDetailProps) {
     const [isLiked, setIsLiked] = useState(false)
-    const [isBookmarked, setIsBookmarked] = useState(false)
     const [newComment, setNewComment] = useState('')
 
     const [post, setPost] = useState<Review>()
@@ -24,6 +23,8 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
 
     const [replyToCommentId, setReplyToCommentId] = useState<number | null>(null)
     const [replyContent, setReplyContent] = useState('')
+
+    const [tags, setTags] = useState<string[]>([])
 
     function nestComments(flatComments: Comment[]): Comment[] {
         const commentMap: { [id: number]: Comment } = {}
@@ -109,6 +110,16 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         }
     }
 
+    const fetchTags = async () => {
+        const { data, error } = await supabase.from('review_tag').select('name').eq('review_id', postId)
+
+        if (error) {
+            console.error('태그 불러오기 실패:', error)
+        } else {
+            setTags(data.map((tag) => tag.name))
+        }
+    }
+
     const fetchLikes = async () => {
         if (!currentUserId || !post) return
 
@@ -130,6 +141,7 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
     useEffect(() => {
         fetchUserData()
         fetchData()
+        fetchTags()
     }, [])
 
     //post와 currentUserId가 세팅된 이후에만 fetchLikes()가 실행
@@ -312,28 +324,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         replies?: NestedComment[]
     }
 
-    // const handleCommentLike = async (comment: Comment) => {
-    //     const newLiked = !isLiked
-    //     setIsLiked(newLiked)
-
-    //     const updatedLikes = comment.likes + (newLiked ? 1 : -1)
-
-    //     // UI 먼저 업데이트
-    //     setComments((prev) =>
-    //         prev.map((c) => (c.id === comment.id ? { ...c, likes: updatedLikes, isLiked: newLiked } : c)),
-    //     )
-
-    //     const { error } = await supabase.from('review_comments').update({ likes: updatedLikes }).eq('id', comment.id)
-
-    //     if (error) {
-    //         console.error('좋아요 업데이트 실패:', error)
-    //         // 롤백
-    //         setComments((prev) =>
-    //             prev.map((c) => (c.id === comment.id ? { ...c, likes: comment.likes, isLiked: !newLiked } : c)),
-    //         )
-    //     }
-    // }
-
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />
@@ -418,13 +408,13 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                             </div>
                         )} */}
 
-                        {/* <div className="flex flex-wrap gap-2 mb-6">
-                            {post.tags.map((tag, index) => (
-                                <span key={index} className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">
+                        <div className="flex flex-wrap gap-2 mb-4">
+                            {tags.map((tag, index) => (
+                                <span key={index} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
                                     #{tag}
                                 </span>
                             ))}
-                        </div> */}
+                        </div>
 
                         <div className="flex items-center justify-between py-4 border-t border-gray-200">
                             <div className="flex items-center gap-4">

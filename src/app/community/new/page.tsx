@@ -14,10 +14,12 @@ export default function NewPostPage() {
     const [destinations, setDestinations] = useState<{ id: number; name: string }[]>([])
     const [selectedDestinationId, setSelectedDestinationId] = useState<number | null>(null)
     const [imageFile, setImageFile] = useState<File | null>(null)
+    const [tagInput, setTagInput] = useState('')
+    const [tags, setTags] = useState<string[]>([])
 
     const fetchDestinations = async () => {
         const { data, error } = await supabase.from('destination').select('id, name')
-        console.log('여행지 목록:', data, error)
+        //console.log('여행지 목록:', data, error)
         if (error) {
             console.error('여행지 목록 불러오기 실패:', error)
         } else {
@@ -28,6 +30,21 @@ export default function NewPostPage() {
     useEffect(() => {
         fetchDestinations()
     }, [])
+
+    const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault()
+            const value = tagInput.trim()
+            if (value && !tags.includes(value)) {
+                setTags((prev) => [...prev, value])
+            }
+            setTagInput('')
+        }
+    }
+
+    const removeTag = (tag: string) => {
+        setTags((prev) => prev.filter((t) => t !== tag))
+    }
 
     const handleSubmit = async () => {
         const {
@@ -79,30 +96,57 @@ export default function NewPostPage() {
             return
         }
 
-        const { data, error: insertError } = await supabase.from('review').insert({
-            title,
-            content,
-            location: destinations.find((d) => d.id === selectedDestinationId)?.name || '선택되지 않음',
-            type,
-            author: userData.username || '익명',
-            date: new Date().toISOString(),
-            views: 0,
-            likes: 0,
-            comments: 0,
-            file_type: fileType, // 'image' 또는 'video'
-            file_path: filePath, // 업로드된 파일 경로
-            user_id: userData.id,
-            destination_id: selectedDestinationId, // 임시로 3번 여행지로 설정
-            image_url: imageUrl || null,
-        })
+        const { data, error: insertError } = await supabase
+            .from('review')
+            .insert({
+                title,
+                content,
+                location: destinations.find((d) => d.id === selectedDestinationId)?.name || '선택되지 않음',
+                type,
+                author: userData.username || '익명',
+                date: new Date().toISOString(),
+                views: 0,
+                likes: 0,
+                comments: 0,
+                file_type: fileType, // 'image' 또는 'video'
+                file_path: filePath, // 업로드된 파일 경로
+                user_id: userData.id,
+                destination_id: selectedDestinationId, // 임시로 3번 여행지로 설정
+                image_url: imageUrl || null,
+            })
+            .select()
 
-        if (insertError) {
+        if (insertError || !data || data.length === 0) {
             console.error('글 작성 실패:', insertError)
-            alert('글 작성에 실패했습니다.')
-        } else {
-            alert('글이 등록되었습니다!')
-            router.push('/community')
+            return
         }
+
+        // for (const tag of tags) {
+        //     const { error: tagError } = await supabase.from('review_tag').insert({
+        //         review_id: data[0].id,
+        //         name: tag,
+        //     })
+
+        //     if (tagError) {
+        //         console.error('태그 저장 실패:', tagError)
+        //         // 필요시 return 또는 continue 등
+        //     }
+        // }
+
+        const { error: tagError } = await supabase.from('review_tag').insert(
+            tags.map((tag) => ({
+                review_id: data[0].id,
+                name: tag,
+            })),
+        )
+
+        if (tagError) {
+            console.error('태그 저장 실패:', tagError)
+            return
+        }
+
+        alert('글이 등록되었습니다!')
+        router.push('/community')
     }
 
     return (
@@ -117,6 +161,25 @@ export default function NewPostPage() {
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full border border-gray-300 p-3 rounded"
                 />
+                <input
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleTagKeyDown}
+                    placeholder="태그를 입력하고 Enter 또는 , 입력"
+                    className="w-full border border-gray-300 p-2 rounded"
+                />
+                <div className="flex gap-2 flex-wrap mt-2">
+                    {tags.map((tag, index) => (
+                        <span
+                            key={index}
+                            className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm cursor-pointer"
+                            onClick={() => removeTag(tag)}
+                        >
+                            #{tag} ✕
+                        </span>
+                    ))}
+                </div>
                 <textarea
                     placeholder="내용"
                     value={content}
