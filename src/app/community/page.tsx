@@ -45,6 +45,7 @@ export default function CommunityPage() {
         } = await supabaseBrowser.auth.getUser()
 
         if (!user) {
+            router.push('/login')
             return
         }
 
@@ -99,10 +100,6 @@ export default function CommunityPage() {
 
     const handleCardClick = (id: number) => {
         router.push(`/community/${id}`)
-    }
-
-    const handleNewPostClick = () => {
-        router.push('/community/new')
     }
 
     const filteredPosts = posts.filter((post) => {
