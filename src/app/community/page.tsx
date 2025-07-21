@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
@@ -25,50 +24,49 @@ export default function CommunityPage() {
         { id: 'companion', name: '동행구인', icon: 'ri-group-line' },
     ]
 
-    const fetchData = async () => {
+    const getCurrentUser = async () => {
         const {
             data: { user },
         } = await supabaseBrowser.auth.getUser()
+        return user
+    }
 
-        if (!user) {
-            router.push('/login')
-            return
-        }
+    const getUserId = async (authId: string) => {
+        const { data, error } = await supabase.from('user').select('id').eq('auth_id', authId).single()
+        if (error) throw error
+        return data.id
+    }
 
-        let { data: posts, error } = await supabase
+    const getPosts = async () => {
+        const { data, error } = await supabase
             .from('review')
             .select(
                 `
-          *,
-          user: user (
-            profile_image
-          ),
-          review_tag:review_tag (
+                *,
+                user: user(profile_image),
+                review_tag:review_tag (
             name
           )
-        `,
+            `,
             )
-            .order('id', { ascending: false }) // id 기준 내림차순
+            .order('id', { ascending: false })
 
-        setPosts(posts || [])
+        if (error) throw error
+        return data
+    }
 
-        console.log('Posts fetched:', posts)
+    const fetchData = async () => {
+        try {
+            const user = await getCurrentUser()
+            if (!user) return router.push('/login')
 
-        const { data: userData, error: userError } = await supabase
-            .from('user')
-            .select('id')
-            .eq('auth_id', user.id)
-            .single()
+            const userId = await getUserId(user.id)
+            setCurrentUserId(userId)
 
-        if (userError) {
-            console.error('사용자 정보 불러오기 실패:', userError)
-            return
-        } else {
-            setCurrentUserId(userData?.id ?? null)
-        }
-
-        if (error) {
-            console.error('Error fetching posts:', error)
+            const posts = await getPosts()
+            setPosts(posts || [])
+        } catch (err) {
+            console.error('초기화 실패:', err)
         }
     }
 
