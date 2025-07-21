@@ -176,6 +176,7 @@ AI 추천 일정(오전/오후/저녁)
 ## 🗃️ 데이터베이스 구조
 <img width="1540" height="839" alt="erd" src="https://github.com/user-attachments/assets/606a3faf-1d30-49f2-9daf-fba3707d4b7a" />
 
+### 🙌 넥스트 코드 ERD CLOUD: [ERD 페이지 바로가기](https://www.erdcloud.com/d/S7f2psXivcmmtErEJ)
 
 <br>
 
