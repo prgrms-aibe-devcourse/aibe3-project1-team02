@@ -45,7 +45,6 @@ export default function CommunityPage() {
         } = await supabaseBrowser.auth.getUser()
 
         if (!user) {
-            alert('로그인이 필요합니다.')
             return
         }
 
@@ -94,6 +93,10 @@ export default function CommunityPage() {
 
     const handleCardClick = (id: number) => {
         router.push(`/community/${id}`)
+    }
+
+    const handleNewPostClick = () => {
+        router.push('/community/new')
     }
 
     const filteredPosts = posts.filter((post) => {
