@@ -101,23 +101,8 @@ export default function SignupForm() {
         let avatarUrl = DEFAULT_AVATAR
 
         try {
-            const { data, error } = await supabase.auth.signUp({
-                email: formData.email,
-                password: formData.password,
-                options: {
-                    data: {
-                        name: formData.name,
-                        phone: formData.phone,
-                        avatar_url: avatarUrl,
-                        agreementTerms: formData.agreementTerms,
-                        agreementPrivacy: formData.agreementPrivacy,
-                        agreementMarketing: formData.agreementMarketing,
-                    },
-                },
-            })
             // 이미지 업로드
             if (avatarFile) {
-                console.log('업로드할 파일:', avatarFile)
                 const ext = avatarFile.name.split('.').pop()
                 const filePath = `avatars/${formData.email}-${Date.now()}.${ext}`
 
@@ -136,6 +121,21 @@ export default function SignupForm() {
                 avatarUrl = publicUrlData.publicUrl
                 //alert(avatarUrl)
             }
+
+            const { data, error } = await supabase.auth.signUp({
+                email: formData.email,
+                password: formData.password,
+                options: {
+                    data: {
+                        name: formData.name,
+                        phone: formData.phone,
+                        avatar_url: avatarUrl,
+                        agreementTerms: formData.agreementTerms,
+                        agreementPrivacy: formData.agreementPrivacy,
+                        agreementMarketing: formData.agreementMarketing,
+                    },
+                },
+            })
 
             if (error) {
                 console.error('Signup error:', error)
