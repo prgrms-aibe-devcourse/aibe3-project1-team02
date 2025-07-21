@@ -44,3 +44,21 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     return NextResponse.json({ success: true, message: '성공적으로 업데이트되었습니다.' })
 }
+
+export async function DELETE(request: Request, context: { params: { id: string } }) {
+    const params = await context.params
+    const id = params.id
+
+    try {
+        const { error } = await supabaseAdmin.from('travel_plan').delete().eq('id', id)
+
+        if (error) {
+            throw error
+        }
+
+        return NextResponse.json({ success: true, message: '성공적으로 삭제되었습니다.' })
+    } catch (err: any) {
+        console.error(`DELETE /api/plans/${id} Error:`, err.message)
+        return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 })
+    }
+}
