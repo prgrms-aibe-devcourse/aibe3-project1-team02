@@ -50,7 +50,7 @@ export default function Header() {
                 <div className="flex justify-between items-center h-16">
                     <div className="flex items-center">
                         <Link href="/" className="text-2xl font-bold text-blue-600 font-pacifico">
-                            TripPlan
+                            T.A.T
                         </Link>
                     </div>
 
@@ -148,6 +148,9 @@ export default function Header() {
                             {user ? (
                                 <>
                                     <span className="block px-3 py-2 text-gray-700">{user.email} 님</span>
+                                    <Link href="/my" className="block px-3 py-2 text-gray-700 hover:text-blue-600">
+                                        my 페이지
+                                    </Link>
                                     <button
                                         onClick={handleLogout}
                                         className="block w-full px-3 py-2 text-left text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
