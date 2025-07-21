@@ -233,8 +233,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             .select('*', { count: 'exact', head: true }) // head: true는 데이터를 가져오지 않고 카운트만
             .eq('parent_id', commentId)
 
-        console.log('대댓글 개수:', count || 0)
-
         const { error: childCommentError } = await supabase.from('review_comments').delete().eq('parent_id', commentId)
 
         if (childCommentError) {
