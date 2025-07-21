@@ -26,20 +26,6 @@ export default function CommunityPage() {
     ]
 
     const fetchData = async () => {
-        let { data: posts, error } = await supabase
-            .from('review')
-            .select(
-                `
-              *,
-              user: user (
-                profile_image
-              )
-            `,
-            )
-            .order('id', { ascending: false }) //id 기준 내림차순
-
-        setPosts(posts || [])
-
         const {
             data: { user },
         } = await supabaseBrowser.auth.getUser()
@@ -49,7 +35,24 @@ export default function CommunityPage() {
             return
         }
 
-        console.log('uuid: ' + user.id)
+        let { data: posts, error } = await supabase
+            .from('review')
+            .select(
+                `
+          *,
+          user: user (
+            profile_image
+          ),
+          review_tag:review_tag (
+            name
+          )
+        `,
+            )
+            .order('id', { ascending: false }) // id 기준 내림차순
+
+        setPosts(posts || [])
+
+        console.log('Posts fetched:', posts)
 
         const { data: userData, error: userError } = await supabase
             .from('user')
@@ -78,6 +81,13 @@ export default function CommunityPage() {
 
         if (commentError) {
             console.error('댓글 삭제 실패:', commentError)
+            return
+        }
+
+        const { error: tagError } = await supabase.from('review_tag').delete().eq('review_id', postId)
+
+        if (tagError) {
+            console.error('태그 삭제 실패:', tagError)
             return
         }
 
@@ -268,20 +278,17 @@ export default function CommunityPage() {
                                             </div>
                                         )}
                                     </div>
-
-                                    {/* 태그 영역은 주석 처리 */}
-
-                                    {/* <div className="flex flex-wrap gap-2 mb-4">
-                                            {post.tags.map((tag, index) => (
-                                                <span
-                                                    key={index}
-                                                    className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"
-                                                >
-                                                    #{tag}
-                                                </span>
-                                            ))}
-                                        </div> */}
-
+                                    <div className="flex gap-2 flex-wrap">
+                                        {post.review_tag?.map((tag, index) => (
+                                            <span
+                                                key={index}
+                                                className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"
+                                            >
+                                                #{tag.name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <br></br>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-1 text-sm text-gray-500">
                                             <span className="font-medium">{post.author}</span>
