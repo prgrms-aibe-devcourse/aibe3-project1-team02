@@ -43,6 +43,8 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
         async function fetchData() {
             const { data, error } = await supabase.rpc('get_destination_reviews', { dest_id: parseInt(destinationId) })
             setReviews(data || [])
+
+            console.log(destinationId, data)
         }
         fetchData()
     }, [destinationId])
