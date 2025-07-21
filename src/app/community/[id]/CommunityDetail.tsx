@@ -260,7 +260,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
             return
         } else {
             alert('댓글 삭제 완료!')
-            fetchData()
         }
 
         const { error: updateError } = await supabase
@@ -273,6 +272,8 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         if (updateError) {
             console.error('댓글 수 업데이트 실패:', updateError)
         }
+
+        fetchData()
     }
 
     const handleLike = async () => {
