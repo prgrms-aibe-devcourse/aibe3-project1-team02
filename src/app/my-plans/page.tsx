@@ -21,7 +21,7 @@ interface TravelPlan {
         price: string
         original_price: string
         discount: string
-        includes: string[]
+        includeItems: string[]
     }
 }
 
@@ -87,6 +87,8 @@ export default function MyPlansPage() {
                 return '50-100만원'
             case 'high':
                 return '100-200만원'
+            case 'luxury':
+                return '200만원 이상'
             default:
                 return '알 수 없음'
         }
@@ -210,8 +212,8 @@ export default function MyPlansPage() {
                                                 <div className="mb-6 flex-grow">
                                                     <h4 className="font-medium text-gray-900 mb-2">포함 사항</h4>
                                                     <ul className="text-sm text-gray-600 space-y-1">
-                                                        {details.includes &&
-                                                            details.includes.map((item: string, idx: number) => (
+                                                        {details.includeItems &&
+                                                            details.includeItems.map((item: string, idx: number) => (
                                                                 <li key={idx} className="flex items-center gap-2">
                                                                     <div className="w-3 h-3 flex items-center justify-center">
                                                                         <i className="ri-check-line text-green-500 text-xs"></i>
