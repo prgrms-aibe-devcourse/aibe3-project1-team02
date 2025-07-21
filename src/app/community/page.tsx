@@ -153,6 +153,18 @@ export default function CommunityPage() {
         }
     }
 
+    function TagList({ tags }: { tags: { name: string }[] }) {
+        return (
+            <div className="flex gap-2 flex-wrap">
+                {tags.map((tag, index) => (
+                    <span key={index} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                        #{tag.name}
+                    </span>
+                ))}
+            </div>
+        )
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />
@@ -276,16 +288,8 @@ export default function CommunityPage() {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="flex gap-2 flex-wrap">
-                                        {post.review_tag?.map((tag, index) => (
-                                            <span
-                                                key={index}
-                                                className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"
-                                            >
-                                                #{tag.name}
-                                            </span>
-                                        ))}
-                                    </div>
+                                    <TagList tags={post.review_tag || []} />
+
                                     <br></br>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-1 text-sm text-gray-500">

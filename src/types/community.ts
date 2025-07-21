@@ -14,7 +14,7 @@ export interface Review {
     file_path: string
     destination_id: number
     user_id: number
-    review_tag?: string[]
+    review_tag?: { name: string }[]
 
     user?: {
         profile_image: string
