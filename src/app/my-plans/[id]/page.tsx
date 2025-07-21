@@ -184,6 +184,16 @@ export default function PlanDetailPage() {
                     </div>
 
                     <div className="text-center mt-12">
+                        {plan.status === 'completed' && (
+                            <button
+                                onClick={() => {
+                                    router.push('../community/new')
+                                }}
+                                className="inline-block mr-4 bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition text-lg font-semibold"
+                            >
+                                후기 작성
+                            </button>
+                        )}
                         <Link
                             href={`/my-plans/${plan.id}/modify`}
                             className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition text-lg font-semibold"
