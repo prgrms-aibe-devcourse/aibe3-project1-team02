@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: Request, context: { params: { id: string } }) {
-    const params = await context.params
+    const { params } = context
     const id = params.id
 
     try {
@@ -31,9 +31,8 @@ export async function GET(request: Request, context: { params: { id: string } })
     }
 }
 
-export async function PATCH(request: NextRequest, context: { params: { id: string } }) {
-    const params = await context.params
-    const id = params.id
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+    const { id } = params
     const body = await request.json()
 
     const { error } = await supabaseAdmin.from('travel_plan').update(body).eq('id', id)
