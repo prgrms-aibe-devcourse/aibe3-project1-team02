@@ -17,7 +17,7 @@ interface TravelPlan {
     budget: string
     image: string
     progress: number
-    plan_details?: {
+    planDetails?: {
         price: string
         original_price: string
         discount: string
@@ -150,11 +150,11 @@ export default function MyPlansPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredPlans.map((plan) => {
                             // 확정된(패키지 예약 확정) 카드
-                            if (plan.status === 'confirmed' && plan.plan_details) {
-                                const details = plan.plan_details
+                            if (plan.status === 'confirmed' && plan.planDetails) {
+                                const details = plan.planDetails
                                 return (
                                     <Link key={plan.id} href={`/my-plans/${plan.id}`} className="block">
-                                        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8 max-w-md flex flex-col">
+                                        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8 max-w-md flex flex-col h-full">
                                             <div className="relative h-48">
                                                 <img
                                                     src={plan.image}
@@ -182,18 +182,32 @@ export default function MyPlansPage() {
                                                 <div className="mb-4">
                                                     <span className="text-2xl font-bold text-blue-600">
                                                         {details.price
-                                                            ? `${Number(
-                                                                  String(details.price).replace(/[^0-9]/g, ''),
-                                                              ).toLocaleString()}원`
+                                                            ? (() => {
+                                                                  const price = details.price as any
+                                                                  if (typeof price === 'number') {
+                                                                      return `${price.toLocaleString()}원`
+                                                                  } else {
+                                                                      return `${Number(
+                                                                          String(price).replace(/[^0-9]/g, ''),
+                                                                      ).toLocaleString()}원`
+                                                                  }
+                                                              })()
                                                             : ''}
                                                     </span>
                                                     {details.original_price && (
                                                         <span className="text-lg text-gray-400 line-through ml-2">
-                                                            {details.original_price}
+                                                            {(() => {
+                                                                const originalPrice = details.original_price as any
+                                                                if (typeof originalPrice === 'number') {
+                                                                    return `${originalPrice.toLocaleString()}원`
+                                                                } else {
+                                                                    return originalPrice
+                                                                }
+                                                            })()}
                                                         </span>
                                                     )}
                                                 </div>
-                                                <div className="mb-6">
+                                                <div className="mb-6 flex-grow">
                                                     <h4 className="font-medium text-gray-900 mb-2">포함 사항</h4>
                                                     <ul className="text-sm text-gray-600 space-y-1">
                                                         {details.includes &&
@@ -207,7 +221,7 @@ export default function MyPlansPage() {
                                                             ))}
                                                     </ul>
                                                 </div>
-                                                <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium">
+                                                <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap font-medium mt-auto">
                                                     계획 보기
                                                 </button>
                                             </div>
@@ -239,7 +253,7 @@ export default function MyPlansPage() {
                                         <div className="p-6 flex flex-col flex-grow">
                                             <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.title}</h3>
                                             <p className="text-gray-600 mb-4">{plan.destination}</p>
-                                            <div className="space-y-2 mb-4">
+                                            <div className="space-y-2 mb-4 flex-grow">
                                                 <div className="flex items-center text-sm text-gray-600">
                                                     <i className="ri-calendar-line w-4 h-4 mr-2" />
                                                     <span>
@@ -269,7 +283,7 @@ export default function MyPlansPage() {
                                                     </div>
                                                 </div>
                                             )}
-                                            <div className="mt-auto pt-4">
+                                            <div className="mt-auto">
                                                 <div className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer whitespace-nowrap text-sm font-medium">
                                                     {plan.status === 'completed' ? '여행 기록 보기' : '계획 보기'}
                                                 </div>
