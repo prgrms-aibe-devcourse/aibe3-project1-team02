@@ -245,24 +245,49 @@ export default function DestinationDetail({ destinationId }: DestinationDetailPr
             title: pkg.title,
             destination: destination.name,
             image: pkg.image,
-            package_id: pkg.id,
-            status: 'confirmed', // 확정됨 탭에 들어가게
-            plan_details: {
+            dates: {
+                start: new Date().toISOString().split('T')[0],
+                end: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            },
+            travelers: 1,
+            budget: 'high',
+            progress: 100,
+            planDetails: {
                 original_price: pkg.originalPrice,
                 price: pkg.price,
                 discount: pkg.discount,
                 includes: pkg.includes,
-                // 필요하면 더 추가
             },
         }
 
-        const { error } = await supabase.from('travel_plan').insert([planData])
-        if (error) {
-            alert('예약에 실패했습니다: ' + error.message)
-            return
+        try {
+            const response = await fetch('/api/plans', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(planData),
+            })
+
+            const result = await response.json()
+            if (!result.success) {
+                alert('예약에 실패했습니다: ' + result.error)
+                return
+            }
+
+            // 성공적으로 저장된 후 상태를 confirmed로 업데이트
+            const { error: updateError } = await supabase
+                .from('travel_plan')
+                .update({ status: 'confirmed' })
+                .eq('id', result.id)
+
+            if (updateError) {
+                console.error('상태 업데이트 실패:', updateError)
+            }
+
+            alert('예약이 완료되었습니다!')
+            router.push('/my-plans')
+        } catch (error) {
+            alert('예약에 실패했습니다: ' + error)
         }
-        alert('예약이 완료되었습니다!')
-        router.push('/my-plans')
     }
 
     return (
