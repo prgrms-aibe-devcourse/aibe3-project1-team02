@@ -75,6 +75,7 @@ export default function CommunityCard({ post, currentUserId, onDelete }: Communi
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation()
+                                    e.preventDefault()
                                     onDelete(post, post.id)
                                 }}
                                 className="text-red-500 hover:underline text-sm"
