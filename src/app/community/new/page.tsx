@@ -9,7 +9,6 @@ export default function NewPostPage() {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [type, setType] = useState('review')
-    const [imageUrl, setImageUrl] = useState('')
     const router = useRouter()
     const [destinations, setDestinations] = useState<{ id: number; name: string }[]>([])
     const [selectedDestinationId, setSelectedDestinationId] = useState<number | null>(null)
@@ -19,7 +18,6 @@ export default function NewPostPage() {
 
     const fetchDestinations = async () => {
         const { data, error } = await supabase.from('destination').select('id, name')
-        //console.log('여행지 목록:', data, error)
         if (error) {
             console.error('여행지 목록 불러오기 실패:', error)
         } else {
@@ -56,7 +54,7 @@ export default function NewPostPage() {
             return
         }
 
-        let imageUrl = ''
+        let fileUrl = ''
         let fileType = 'image'
         let filePath = ''
 
@@ -82,7 +80,7 @@ export default function NewPostPage() {
 
             const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(filePath)
 
-            imageUrl = publicUrlData.publicUrl
+            fileUrl = publicUrlData.publicUrl
         }
 
         const { data: userData, error: userError } = await supabase
@@ -112,7 +110,7 @@ export default function NewPostPage() {
                 file_path: filePath, // 업로드된 파일 경로
                 user_id: userData.id,
                 destination_id: selectedDestinationId, // 임시로 3번 여행지로 설정
-                image_url: imageUrl || null,
+                file_url: fileUrl || null,
             })
             .select()
 
@@ -120,18 +118,6 @@ export default function NewPostPage() {
             console.error('글 작성 실패:', insertError)
             return
         }
-
-        // for (const tag of tags) {
-        //     const { error: tagError } = await supabase.from('review_tag').insert({
-        //         review_id: data[0].id,
-        //         name: tag,
-        //     })
-
-        //     if (tagError) {
-        //         console.error('태그 저장 실패:', tagError)
-        //         // 필요시 return 또는 continue 등
-        //     }
-        // }
 
         const { error: tagError } = await supabase.from('review_tag').insert(
             tags.map((tag) => ({

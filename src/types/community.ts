@@ -9,12 +9,12 @@ export interface Review {
     views: number
     likes: number
     comments: number
-    image_url: string
+    file_url: string
     file_type: string // 'image' 또는 'video'
     file_path: string
     destination_id: number
     user_id: number
-    review_tag?: string[]
+    review_tag?: { name: string }[]
 
     user?: {
         profile_image: string
