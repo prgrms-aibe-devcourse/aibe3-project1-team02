@@ -186,8 +186,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
     }
 
     const handleSubmitComment = async (parentId?: number) => {
-        //if (!newComment.trim() || !post?.id || !replyContent.trim()) return
-
         const {
             data: { user: authUser },
         } = await supabaseBrowser.auth.getUser()
@@ -321,9 +319,6 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
         }
         fetchLikes()
     }
-    type NestedComment = Comment & {
-        replies?: NestedComment[]
-    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -432,34 +427,9 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                     </div>
                                     좋아요 {post.likes}
                                 </button>
-
-                                {/* <button
-                                    onClick={() => setIsBookmarked(!isBookmarked)}
-                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                                        isBookmarked
-                                            ? 'bg-blue-50 text-blue-600'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                    }`}
-                                >
-                                    <div className="w-4 h-4 flex items-center justify-center">
-                                        <i
-                                            className={`${
-                                                isBookmarked ? 'ri-bookmark-fill' : 'ri-bookmark-line'
-                                            } text-sm`}
-                                        ></i>
-                                    </div>
-                                    북마크
-                                </button> */}
                             </div>
 
-                            <div className="flex items-center gap-4">
-                                {/* <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 cursor-pointer">
-                                    <div className="w-4 h-4 flex items-center justify-center">
-                                        <i className="ri-share-line text-sm"></i>
-                                    </div>
-                                    공유
-                                </button> */}
-                            </div>
+                            <div className="flex items-center gap-4"></div>
                         </div>
                     </div>
                 </article>
@@ -510,6 +480,18 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                 <span className="font-medium text-gray-900">
                                                     {comment.user?.username}
                                                 </span>
+
+                                                <span className="text-xs text-gray-500">
+                                                    {new Date(comment.created_at).toLocaleString('ko-KR', {
+                                                        year: 'numeric',
+                                                        month: '2-digit',
+                                                        day: '2-digit',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                        hour12: false,
+                                                    })}
+                                                </span>
+
                                                 {comment.user_id === currentUserId && (
                                                     <button
                                                         onClick={(e) => {
@@ -521,19 +503,9 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                         삭제
                                                     </button>
                                                 )}
-                                                <span className="text-sm text-gray-500">{comment.created_at}</span>
                                             </div>
                                             <p className="text-gray-700 text-sm mb-2">{comment.body}</p>
                                             <div className="flex items-center gap-4">
-                                                {/* <button
-                                                    onClick={() => handleLike('comment')}
-                                                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer"
-                                                >
-                                                    <div className="w-3 h-3 flex items-center justify-center">
-                                                        <i className="ri-thumb-up-line text-xs"></i>
-                                                    </div>
-                                                    {comment.likes}
-                                                </button> */}
                                                 <button
                                                     className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer"
                                                     onClick={() => setReplyToCommentId(comment.id)}
@@ -588,6 +560,21 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                                     <span className="font-medium text-gray-900 text-sm">
                                                                         {reply.user?.username}
                                                                     </span>
+
+                                                                    <span className="text-xs text-gray-500">
+                                                                        {new Date(reply.created_at).toLocaleString(
+                                                                            'ko-KR',
+                                                                            {
+                                                                                year: 'numeric',
+                                                                                month: '2-digit',
+                                                                                day: '2-digit',
+                                                                                hour: '2-digit',
+                                                                                minute: '2-digit',
+                                                                                hour12: false,
+                                                                            },
+                                                                        )}
+                                                                    </span>
+
                                                                     {reply.user_id === currentUserId && (
                                                                         <button
                                                                             onClick={(e) => {
@@ -599,19 +586,10 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                                                                             삭제
                                                                         </button>
                                                                     )}
-                                                                    <span className="text-xs text-gray-500">
-                                                                        {reply.created_at}
-                                                                    </span>
                                                                 </div>
                                                                 <p className="text-gray-700 text-sm mb-1">
                                                                     {reply.body}
                                                                 </p>
-                                                                {/* <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
-                                                                    <div className="w-3 h-3 flex items-center justify-center">
-                                                                        <i className="ri-thumb-up-line text-xs"></i>
-                                                                    </div>
-                                                                    {reply.likes}
-                                                                </button> */}
                                                             </div>
                                                         </div>
                                                     ))}
