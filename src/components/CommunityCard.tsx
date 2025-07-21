@@ -91,16 +91,16 @@ export default function CommunityCard({ post, currentUserId, onDelete }: Communi
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">{post.content}</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                        {post.image_url && post.file_type === 'image' && (
+                        {post.file_url && post.file_type === 'image' && (
                             <img
-                                src={post.image_url}
+                                src={post.file_url}
                                 alt="Post image"
                                 className="w-full max-w-md max-h-96 rounded-xl object-cover"
                             />
                         )}
 
-                        {post.image_url && post.file_type === 'video' && (
-                            <video src={post.image_url} className="w-full max-w-md max-h-96 rounded-xl object-cover" />
+                        {post.file_url && post.file_type === 'video' && (
+                            <video src={post.file_url} className="w-full max-w-md max-h-96 rounded-xl object-cover" />
                         )}
                     </div>
 

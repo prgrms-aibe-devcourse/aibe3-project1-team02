@@ -12,7 +12,6 @@ import CommunityCard from '@/components/CommunityCard'
 export default function CommunityPage() {
     const [activeTab, setActiveTab] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
-
     const [posts, setPosts] = useState<Review[]>([])
     const [currentUserId, setCurrentUserId] = useState<number | null>(null)
     const router = useRouter()
@@ -54,36 +53,6 @@ export default function CommunityPage() {
 
         if (error) throw error
         return data
-    }
-
-    const getTypeLabel = (type: string) => {
-        switch (type) {
-            case 'review':
-                return '여행후기'
-            case 'question':
-                return '질문'
-            case 'tip':
-                return '팁'
-            case 'companion':
-                return '동행구인'
-            default:
-                return ''
-        }
-    }
-
-    const getTypeColor = (type: string) => {
-        switch (type) {
-            case 'review':
-                return 'bg-blue-100 text-blue-800'
-            case 'question':
-                return 'bg-green-100 text-green-800'
-            case 'tip':
-                return 'bg-purple-100 text-purple-800'
-            case 'companion':
-                return 'bg-orange-100 text-orange-800'
-            default:
-                return 'bg-gray-100 text-gray-800'
-        }
     }
 
     const fetchData = async () => {
@@ -141,10 +110,6 @@ export default function CommunityPage() {
         }
     }
 
-    const handleCardClick = (id: number) => {
-        router.push(`/community/${id}`)
-    }
-
     const filteredPosts = posts.filter((post) => {
         const matchesTab = activeTab === 'all' || post.type === activeTab
         const matchesSearch =
@@ -153,18 +118,6 @@ export default function CommunityPage() {
             post.location.toLowerCase().includes(searchQuery.toLowerCase())
         return matchesTab && matchesSearch
     })
-
-    function TagList({ tags }: { tags: { name: string }[] }) {
-        return (
-            <div className="flex gap-2 flex-wrap">
-                {tags.map((tag, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
-                        #{tag.name}
-                    </span>
-                ))}
-            </div>
-        )
-    }
 
     return (
         <div className="min-h-screen bg-gray-50">
