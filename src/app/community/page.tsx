@@ -73,7 +73,7 @@ export default function CommunityPage() {
         fetchData()
     }, [])
 
-    const handleDelete = async (postId: number) => {
+    const handleDelete = async (post: Review, postId: number) => {
         const { error: commentError } = await supabase.from('review_comments').delete().eq('review_id', postId)
 
         if (commentError) {
@@ -86,6 +86,10 @@ export default function CommunityPage() {
         if (likeError) {
             console.error('좋아요 삭제 실패:', likeError)
         }
+
+        const { error: removeError } = await supabase.storage.from('review-images').remove([post.file_path])
+
+        if (removeError) console.error('스토리지 파일 삭제 실패:', removeError)
 
         const { error: reviewError } = await supabase.from('review').delete().eq('id', postId)
 
@@ -230,7 +234,7 @@ export default function CommunityPage() {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation()
-                                                    handleDelete(post.id)
+                                                    handleDelete(post, post.id)
                                                 }}
                                                 className="text-red-500 hover:underline text-sm"
                                             >

@@ -40,20 +40,30 @@ export default function NewPostPage() {
         }
 
         let imageUrl = ''
+        let fileType = 'image'
+        let filePath = ''
 
         if (imageFile) {
-            const fileExt = imageFile.name.split('.').pop()
-            const fileName = `${Date.now()}.${fileExt}`
-            const filePath = `uploads/${fileName}`
+            const ext = imageFile.name.split('.').pop()
+            const timestamp = Date.now()
+            const isVideo = imageFile.type.startsWith('video/')
+            const bucket = 'review-images'
+            filePath = `${'uploads'}/${timestamp}.${ext}`
 
-            const { error: uploadError } = await supabase.storage.from('review-images').upload(filePath, imageFile)
+            isVideo ? (fileType = 'video') : (fileType = 'image')
+
+            const { error: uploadError } = await supabase.storage.from(`review-images`).upload(filePath, imageFile, {
+                cacheControl: '3600',
+                upsert: false,
+                contentType: imageFile.type,
+            })
 
             if (uploadError) {
-                console.error('업로드 실패:', uploadError)
+                console.error(`${isVideo ? '영상' : '이미지'} 업로드 실패:`, uploadError)
                 return
             }
 
-            const { data: publicUrlData } = supabase.storage.from('review-images').getPublicUrl(filePath)
+            const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(filePath)
 
             imageUrl = publicUrlData.publicUrl
         }
@@ -79,6 +89,8 @@ export default function NewPostPage() {
             views: 0,
             likes: 0,
             comments: 0,
+            file_type: fileType, // 'image' 또는 'video'
+            file_path: filePath, // 업로드된 파일 경로
             user_id: userData.id,
             destination_id: selectedDestinationId, // 임시로 3번 여행지로 설정
             image_url: imageUrl || null,
@@ -138,7 +150,7 @@ export default function NewPostPage() {
                 </select>
                 <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                     className="block"
                 />
