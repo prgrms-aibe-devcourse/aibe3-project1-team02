@@ -248,16 +248,28 @@ export default function CommunityPage() {
                                     </h3>
 
                                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">{post.content}</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                                        {post.image_url && post.file_type === 'image' && (
+                                            <div className="mb-4">
+                                                <img
+                                                    src={post.image_url}
+                                                    alt="Post image"
+                                                    className="w-full max-w-md max-h-96 rounded-xl object-cover"
+                                                />
+                                            </div>
+                                        )}
 
-                                    {post.image_url && (
-                                        <div className="mb-4">
-                                            <img
-                                                src={post.image_url}
-                                                alt="Post image"
-                                                className="w-full max-w-md rounded-xl object-cover"
-                                            />
-                                        </div>
-                                    )}
+                                        {post.image_url && post.file_type === 'video' && (
+                                            <div className="mb-4">
+                                                <video
+                                                    src={post.image_url}
+                                                    className="w-full max-w-md max-h-96 rounded-xl object-cover"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* 태그 영역은 주석 처리 */}
 
                                     {/* <div className="flex flex-wrap gap-2 mb-4">
                                             {post.tags.map((tag, index) => (

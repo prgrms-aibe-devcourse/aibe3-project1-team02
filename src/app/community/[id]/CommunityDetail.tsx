@@ -381,13 +381,27 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                         <div className="prose max-w-none mb-6">
                             <div className="text-gray-700 leading-relaxed whitespace-pre-line">{post.content}</div>
                         </div>
-                        {post.image_url && (
+                        {post.image_url && post.file_type === 'image' && (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                                 <img
                                     src={post.image_url}
                                     alt={`Post image`}
                                     className="w-full h-48 object-cover object-top rounded-lg"
                                 />
+                            </div>
+                        )}
+                        {post.image_url && post.file_type === 'video' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                                <video
+                                    controls
+                                    autoPlay
+                                    muted
+                                    loop
+                                    className="w-full h-48 object-cover object-top rounded-lg"
+                                >
+                                    <source src={post.image_url} type="video/mp4" />
+                                    <source src={post.image_url} type="video/webm" />
+                                </video>
                             </div>
                         )}
                         {/* 
