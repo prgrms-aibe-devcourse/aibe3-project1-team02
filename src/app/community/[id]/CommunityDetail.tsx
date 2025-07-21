@@ -379,6 +379,15 @@ export default function CommunityDetail({ postId }: CommunityDetailProps) {
                         <div className="prose max-w-none mb-6">
                             <div className="text-gray-700 leading-relaxed whitespace-pre-line">{post.content}</div>
                         </div>
+                        {post.image_url && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                                <img
+                                    src={post.image_url}
+                                    alt={`Post image`}
+                                    className="w-full h-48 object-cover object-top rounded-lg"
+                                />
+                            </div>
+                        )}
                         {/* 
                         {post.images && post.images.length > 0 && (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
