@@ -46,6 +46,9 @@ export default function HeroSection() {
             <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="w-full">
                     <div className="max-w-2xl">
+                        <p className="text-lg md:text-2xl text-white/70 mb-2 font-semibold tracking-wide">
+                            Trip And Travel
+                        </p>
                         <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
                             완벽한 여행을
                             <br />

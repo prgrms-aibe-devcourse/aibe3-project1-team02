@@ -7,7 +7,7 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="col-span-1 md:col-span-2">
                         <Link href="/" className="text-2xl font-bold text-blue-400 font-pacifico">
-                            TripPlan
+                            T.A.T
                         </Link>
                         <p className="mt-4 text-gray-400 max-w-md">
                             AI 기반 여행 계획 플랫폼으로 더 스마트하고 편리한 여행을 만들어갑니다.
@@ -67,7 +67,7 @@ export default function Footer() {
                 </div>
 
                 <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                    <p>&copy; 2024 TripPlan. 모든 권리가 보호됩니다.</p>
+                    <p>&copy; 2025 TripAndTravel. 모든 권리가 보호됩니다.</p>
                 </div>
             </div>
         </footer>
