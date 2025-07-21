@@ -1,28 +1,54 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Loader2 } from 'lucide-react'
 
 export default function AuthCallback() {
     const router = useRouter()
+    const [handled, setHandled] = useState(false)
 
     useEffect(() => {
-        const checkSession = async () => {
-            const { data, error } = await supabase.auth.getSession()
+        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (handled || !session?.user) return
 
-            if (data.session) {
-                console.log('✅ 로그인 성공:', data.session)
-                router.push('/') // 홈으로 이동
-            } else {
-                console.error('❌ 로그인 실패 또는 세션 없음', error)
-                router.push('/login') // 실패 시 로그인 페이지로
+            setHandled(true) // 한 번만 실행되도록 설정
+
+            console.log('✅ 로그인 성공:', session)
+
+            const { data: existingUser, error: fetchError } = await supabase
+                .from('user')
+                .select('*')
+                .eq('auth_id', session.user.id)
+                .single()
+            if (fetchError && fetchError.code !== 'PGRST116') {
+                console.error('사용자 조회 중 오류:', fetchError)
             }
-        }
 
-        checkSession()
-    }, [])
+            if (!existingUser) {
+                const { error: insertError } = await supabase.from('user').insert({
+                    auth_id: session.user.id,
+                    email: session.user.email,
+                    username: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+                    profile_image: session.user.user_metadata?.avatar_url || '',
+                    phone_number: '',
+                })
+
+                if (insertError) {
+                    console.error('사용자 등록 실패:', insertError)
+                } else {
+                    console.log('신규 사용자 등록 완료')
+                }
+            }
+
+            router.push('/')
+        })
+
+        return () => {
+            authListener?.subscription.unsubscribe()
+        }
+    }, [router, handled])
 
     return (
         <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-white">
