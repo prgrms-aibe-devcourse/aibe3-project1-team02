@@ -35,7 +35,7 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="md:ml-auto pr-4">
                         <h3 className="font-semibold mb-4">서비스</h3>
                         <ul className="space-y-2">
                             <li>
@@ -60,44 +60,6 @@ export default function Footer() {
                                     className="text-gray-400 hover:text-white transition-colors cursor-pointer"
                                 >
                                     여행후기
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h3 className="font-semibold mb-4">고객지원</h3>
-                        <ul className="space-y-2">
-                            <li>
-                                <Link
-                                    href="/help"
-                                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
-                                >
-                                    도움말
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/contact"
-                                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
-                                >
-                                    문의하기
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/faq"
-                                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
-                                >
-                                    자주 묻는 질문
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/privacy"
-                                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
-                                >
-                                    개인정보처리방침
                                 </Link>
                             </li>
                         </ul>
