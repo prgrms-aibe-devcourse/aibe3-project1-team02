@@ -9,20 +9,50 @@ export default function AuthCallback() {
     const router = useRouter()
 
     useEffect(() => {
-        const checkSession = async () => {
-            const { data, error } = await supabase.auth.getSession()
+        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+                console.log('✅ 로그인 성공:', session)
 
-            if (data.session) {
-                console.log('✅ 로그인 성공:', data.session)
-                router.push('/') // 홈으로 이동
+                // user 테이블에 유저 정보 존재 여부 체크
+                const { data: existingUser, error: fetchError } = await supabase
+                    .from('user')
+                    .select('auth_id')
+                    .eq('auth_id', session.user.id)
+                    .single()
+
+                if (fetchError && fetchError.code !== 'PGRST116') {
+                    // 예외 처리 (PGRST116: no rows found)
+                    console.error('사용자 조회 중 오류:', fetchError)
+                }
+
+                if (!existingUser) {
+                    // 신규 유저일 경우 user 테이블에 추가
+                    const { error: insertError } = await supabase.from('user').insert({
+                        auth_id: session.user.id,
+                        email: session.user.email,
+                        username: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+                        profile_image: session.user.user_metadata?.avatar_url || '',
+                        phone_number: '', // 소셜 로그인에서는 따로 입력 받지 않으면 빈값 처리
+                    })
+
+                    if (insertError) {
+                        console.error('사용자 등록 실패:', insertError)
+                    } else {
+                        console.log('신규 사용자 등록 완료')
+                    }
+                }
+
+                router.push('/')
             } else {
-                console.error('❌ 로그인 실패 또는 세션 없음', error)
-                router.push('/login') // 실패 시 로그인 페이지로
+                console.log('❌ 세션 없음 또는 로그인 실패')
+                router.push('/login')
             }
-        }
+        })
 
-        checkSession()
-    }, [])
+        return () => {
+            authListener?.subscription.unsubscribe()
+        }
+    }, [router])
 
     return (
         <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-white">
