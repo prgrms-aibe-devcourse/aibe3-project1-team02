@@ -43,6 +43,25 @@ export default function PlanDetailPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
+    const handleDelete = async () => {
+        if (window.confirm('정말로 이 계획을 삭제하시겠습니까?')) {
+            try {
+                const res = await fetch(`/api/plans/${id}`, {
+                    method: 'DELETE',
+                })
+                const data = await res.json()
+                if (!data.success) {
+                    throw new Error(data.error || '삭제에 실패했습니다.')
+                }
+                alert('성공적으로 삭제되었습니다.')
+                router.push('/my-plans')
+            } catch (err: any) {
+                setError(err.message)
+                alert(`오류: ${err.message}`)
+            }
+        }
+    }
+
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'planning':
@@ -171,6 +190,12 @@ export default function PlanDetailPage() {
                         >
                             이 계획 수정하기
                         </Link>
+                        <button
+                            onClick={handleDelete}
+                            className="inline-block ml-4 bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition text-lg font-semibold"
+                        >
+                            삭제하기
+                        </button>
                     </div>
                 </div>
             </main>
