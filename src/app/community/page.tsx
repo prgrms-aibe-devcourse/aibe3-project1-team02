@@ -80,6 +80,12 @@ export default function CommunityPage() {
             return
         }
 
+        const { error: likeError } = await supabase.from('likes').delete().eq('target_id', postId)
+
+        if (likeError) {
+            console.error('좋아요 삭제 실패:', likeError)
+        }
+
         const { error: reviewError } = await supabase.from('review').delete().eq('id', postId)
 
         if (reviewError) {
