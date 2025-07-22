@@ -77,6 +77,8 @@
 인기 여행지 리스트/카드 UI가 제공됩니다.
 (카드 내 후기수, 평균평점, 주요 테마, 여행가격 등 표시)
 
+개발자 GitHub, Notion 등 외부 사이트로 연결되는 링크도 제공됩니다.
+
 ### 2. 여행지 리스트 & 상세 페이지
 여행지별 대륙/국가/도시/테마별 필터링으로 원하는 곳의 정보만 찾아볼 수 있습니다.
 
@@ -141,15 +143,41 @@ AI가 제안한 기본 일정을 사용자가 직접 자유롭게 편집할 수 
 후기/질문/동행 등 게시글이 여행지 상세와 연동되어, 여행지별 실제 후기 수, 후기 평점 등이 자동으로 제공됩니다.
 
 ### 6. 회원가입/로그인 & 프로필 관리
-이메일 기반 회원가입이 가능합니다. (필수정보: 이름, 이메일, 비밀번호, 휴대폰, 프로필 이미지 선택)
-구글/카카오 기반 소셜 로그인이 가능합니다. 
-로그인 후, 모든 서비스를 이용 가능하고, 우측 상단에 가입한 이메일 및 로그아웃 등이 표시됩니다.
+이메일 기반 회원가입이 가능합니다. (필수 정보: 이름, 이메일, 비밀번호, 휴대폰 번호 / 프로필 이미지는 선택 사항입니다.)
+
+구글 및 카카오 계정을 통한 소셜 로그인도 지원합니다.
+
+로그인 후에는 모든 서비스를 이용할 수 있으며, 화면 우측 상단에 가입한 이메일과 로그아웃 버튼이 표시됩니다.
+
+비밀번호를 잊은 경우, 가입한 이메일을 입력하면 비밀번호 재설정 링크를 받아 새로운 비밀번호로 변경할 수 있습니다.
 
 ## 📃 페이지별 상세 안내
 ### 🏠 메인페이지
-여행지 검색/추천/인기 여행지
-검색창에서 여행지명 입력 → 상세페이지 이동
-인기 여행지(후기수/평점/가격 등)
+**여행지 검색**
+
+- 검색창에서 여행지명 입력 → 상세페이지 이동
+
+<img width="500" height="270" alt="image" src="https://github.com/user-attachments/assets/a136014a-5b57-400a-861b-81ae632792d9" />
+
+<br><br>
+
+**인기 여행지(후기수/평점/가격 등)**
+
+- 인기여행지 클릭 -> 해당 여행지 상세페이지 이동
+
+<img width="500" height="270" alt="image" src="https://github.com/user-attachments/assets/4916cfbb-18ec-4940-9fab-73b77898f32e" />  
+
+<br><br>
+
+**기타 기능**
+
+- 개발자 github/notion
+- 여행계획 바로가기
+- 서비스
+
+<img width="500" height="270" alt="image" src="https://github.com/user-attachments/assets/8a1484b9-0112-4131-b36f-30e207e5bba1" />  
+
+<br><br>
 
 ### 🏝️ 여행지 목록/상세
 대륙/국가/테마/가격 등 필터
@@ -183,6 +211,27 @@ AI가 제안한 기본 일정을 사용자가 직접 자유롭게 편집할 수 
 여행후기/질문/팁/동행 구인 등 다양한 글쓰기
 댓글/대댓글, 좋아요, 후기 사진 첨부 지원
 글 상세에서 후기/질문/댓글/좋아요 등 활동 지원
+
+### 회원가입 및 로그인/로그아웃
+**회원가입**
+
+<img width="500" height="270" alt="회원가입" src="https://github.com/user-attachments/assets/a8608018-509b-4cc1-8a0f-d353b86f95ef" />
+
+<br><br>
+
+**로그인/로그아웃**
+
+<img width="500" height="270" alt="로그인" src="https://github.com/user-attachments/assets/1040ae92-d95a-4535-8c0b-f145d163fb3e" /><img width="500" height="270" alt="로그아웃" src="https://github.com/user-attachments/assets/bc3463f2-aa80-461a-8afe-01830ec84e24" />
+
+<br><br>
+
+**비밀번호 찾기**
+
+- 가입한 이메일 입력 -> 이메일로 비밀번호 재설정 링크 발송 -> 비밀번호 재설정
+
+<img width="500" height="270" alt="이메일 입력" src="https://github.com/user-attachments/assets/89a576eb-daa3-4b81-bd84-74e987e3980c" /><img width="500" height="270" alt="비밀번호 재설정" src="https://github.com/user-attachments/assets/3c7a54ed-d1ae-46f4-955c-c744be93d620" />
+
+<br><br>
 
 ## 🗃️ 데이터베이스 구조
 <img width="1540" height="839" alt="erd" src="https://github.com/user-attachments/assets/606a3faf-1d30-49f2-9daf-fba3707d4b7a" />
