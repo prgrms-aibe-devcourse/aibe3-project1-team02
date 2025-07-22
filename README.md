@@ -132,6 +132,10 @@ AI가 제안한 기본 일정을 사용자가 직접 자유롭게 편집할 수 
 ▸ 정보가 바뀔 때마다 AI로 재추천 가능
 (예: 일정이나 인원, 예산 변경 → “AI 일정 다시 생성하기”)
 
+▸ AI가 추천해준 일정 변경 가능
+
+▸ 완료된 계획만 세부 페이지에 후기작성 버튼 생성
+
 ### 5. 여행 후기 & 커뮤니티
 여행 후기, 질문/답변, 여행팁, 동행 구인 등
 다양한 주제로 커뮤니티 글쓰기 지원합니다.
@@ -203,9 +207,33 @@ AI가 제안한 기본 일정을 사용자가 직접 자유롭게 편집할 수 
 
 
 ### 📑 내 여행 계획/패키지 관리
-내가 만든/예약한 여행 계획 목록
+내가 만든/예약한 여행 계획 목록 및 세부 페이지
+
+<img width="500" height="270" src="https://github.com/user-attachments/assets/9fb797a5-7ee0-4f92-b4f7-60e03073fcdd" />
+
+<img width="500" height="270" alt="{E278B306-21C5-4730-8232-C425395630C0}" src="https://github.com/user-attachments/assets/cdbdbb90-b03e-438c-8e55-3665620f6a37" />
+
+<br><br>
+
+완료됨 상태일 때만 생성되는 후기 작성 버튼
+<br><br>
+<img width="500" height="270" src="https://github.com/user-attachments/assets/a845ea23-9216-48cf-ae9c-8a9b476e5227" />
+
+<br><br>
+
 일정, 인원, 예산 등 수정 가능
+
+<br><br>
+
+<img width="500" height="270" src="https://github.com/user-attachments/assets/daaf44e6-963f-434a-800e-bf2a7039a145" />
+
+<br><br>
+
 수정 시 AI로 다시 일정 추천 가능
+<br><br>
+
+<img width="500" height="270" src="https://github.com/user-attachments/assets/685d9a33-9bd1-4108-9968-7e5f0b6e2d69" />
+
 
 ### 💬 여행후기/커뮤니티
 여행후기/질문/팁/동행 구인 등 다양한 글쓰기
