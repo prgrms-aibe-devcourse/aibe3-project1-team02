@@ -181,9 +181,23 @@ AI가 제안한 기본 일정을 사용자가 직접 자유롭게 편집할 수 
 <br><br>
 
 ### 🏝️ 여행지 목록/상세
-대륙/국가/테마/가격 등 필터
-여행지별 관광명소, 패키지, 후기(연동)
-여행지별 실제 커뮤니티 후기수, 평점 자동 표시
+**대륙/국가/테마/가격 등 필터**
+
+<img width="500" height="270" alt="UI목록카드" src="https://github.com/user-attachments/assets/73406a86-b6bb-40b4-9776-235c0b7eec6e" />
+
+
+**여행지별 관광명소, 패키지, 후기(연동)**
+
+<img width="500" height="270" alt="여행지세부페이지1" src="https://github.com/user-attachments/assets/d8b6f037-6a01-4382-8842-4fd59186a83c" />
+
+<img width="500" height="270" alt="여행지세부페이지2" src="https://github.com/user-attachments/assets/10f30916-1166-4267-bbf7-70c2c3744a20" />
+
+
+**여행지별 실제 커뮤니티 후기수, 평점 자동 표시**
+
+<img width="500" height="270" alt="후기평점" src="https://github.com/user-attachments/assets/989d74ce-6f82-4961-811e-9b3fe6abda43" />
+
+
 
 ### 🗺️ 여행 계획 생성/수정 (AI 추천)
 **여행지, 날짜, 인원, 예산, 테마 선택**
