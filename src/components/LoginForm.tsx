@@ -150,7 +150,7 @@ export default function LoginForm() {
                                     const { error } = await supabaseBrowser.auth.signInWithOAuth({
                                         provider: 'google',
                                         options: {
-                                            redirectTo: `http://localhost:3000/auth/callback`,
+                                            redirectTo: `https://aibe3-project1-team02-nextcode.vercel.app/auth/callback`,
                                         },
                                     })
                                     if (error) console.error('Error:', error.message)
@@ -168,7 +168,7 @@ export default function LoginForm() {
                                     const { error } = await supabaseBrowser.auth.signInWithOAuth({
                                         provider: 'kakao',
                                         options: {
-                                            redirectTo: `http://localhost:3000/auth/callback`,
+                                            redirectTo: `https://aibe3-project1-team02-nextcode.vercel.app/auth/callback`,
                                         },
                                     })
                                     if (error) console.error('Error:', error.message)
