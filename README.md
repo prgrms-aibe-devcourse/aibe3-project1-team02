@@ -51,20 +51,18 @@
 <br>
 
 ## 🔎 기술 스택
-### Envrionment
-<div align="left">
 
-</div>
-
-### Development
-<div align="left">
-
-</div>
-
-### Communication
-<div align="left">
-
-</div>
+| Category             | Stack                                                                                                                                                                                                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework              | ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)                                                           |
+| Programming Language | ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)                                                                                                                   |
+| Styling              | ![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)                                                                                                               |
+| Data Fetching        | ![Fetch API](https://img.shields.io/badge/Fetch_API-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white) ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)                                             |                                                                                                                 |
+| Package Manager      | ![NPM](https://img.shields.io/badge/NPM-CB3837?style=for-the-badge&logo=npm&logoColor=white)                                                                                                                                          |
+| Formatting & Linting | ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white) ![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=white)                                                         |
+| Version Control      | ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)                                                                         |
+| Cloud/Deployment     | ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)                                                                                                                                |
+| DB/Auth Backend      | ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)                                                                                                                         |
 
 <br>
 
@@ -218,7 +216,7 @@ AI가 제안한 기본 일정을 사용자가 직접 자유롭게 편집할 수 
 
 
 ### 📑 내 여행 계획/패키지 관리
-내가 만든/예약한 여행 계획 목록 및 세부 페이지
+**내가 만든/예약한 여행 계획 목록 및 세부 페이지**
 
 <img width="500" height="270" src="https://github.com/user-attachments/assets/9fb797a5-7ee0-4f92-b4f7-60e03073fcdd" />
 
@@ -226,13 +224,13 @@ AI가 제안한 기본 일정을 사용자가 직접 자유롭게 편집할 수 
 
 <br><br>
 
-완료됨 상태일 때만 생성되는 후기 작성 버튼
+**완료됨 상태일 때만 생성되는 후기 작성 버튼**
 <br><br>
 <img width="500" height="270" src="https://github.com/user-attachments/assets/a845ea23-9216-48cf-ae9c-8a9b476e5227" />
 
 <br><br>
 
-일정, 인원, 예산 등 수정 가능
+**일정, 인원, 예산 등 수정 가능**
 
 <br><br>
 
@@ -240,7 +238,7 @@ AI가 제안한 기본 일정을 사용자가 직접 자유롭게 편집할 수 
 
 <br><br>
 
-수정 시 AI로 다시 일정 추천 가능
+**수정 시 AI로 다시 일정 추천 가능**
 <br><br>
 
 <img width="500" height="270" src="https://github.com/user-attachments/assets/685d9a33-9bd1-4108-9968-7e5f0b6e2d69" />
