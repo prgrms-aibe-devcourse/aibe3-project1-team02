@@ -234,14 +234,14 @@ AI가 제안한 기본 일정을 사용자가 직접 자유롭게 편집할 수 
 
 <br><br>
 
-<img width="500" height="270" src="https://github.com/user-attachments/assets/daaf44e6-963f-434a-800e-bf2a7039a145" />
+<img width="300" height="270" src="https://github.com/user-attachments/assets/daaf44e6-963f-434a-800e-bf2a7039a145" />
 
 <br><br>
 
 **수정 시 AI로 다시 일정 추천 가능**
 <br><br>
 
-<img width="500" height="270" src="https://github.com/user-attachments/assets/685d9a33-9bd1-4108-9968-7e5f0b6e2d69" />
+<img width="300" height="270" src="https://github.com/user-attachments/assets/685d9a33-9bd1-4108-9968-7e5f0b6e2d69" />
 
 
 ### 💬 여행후기/커뮤니티
